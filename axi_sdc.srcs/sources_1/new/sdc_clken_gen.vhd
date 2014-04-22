@@ -1,15 +1,15 @@
 ----------------------------------------------------------------------------------
--- Company: 
+-- Company: Oppfinneriet.no
 -- Engineer: Kjell H Andersen
--- 
+--
 -- Create Date: 04/22/2014 10:38:08 PM
--- Design Name: 
+-- Design Name: axi_sdc
 -- Module Name: sdc_clken_gen - rtl
--- Project Name: 
--- Target Devices: 
--- Tool Versions: 
--- Description: 
---  Generates clock enable signals for the SDC output The 100MHz system clock 
+-- Project Name: axi_sdc
+-- Target Devices: Artix7
+-- Tool Versions:
+-- Description:
+--  Generates clock enable signals for the SDC output The 100MHz system clock
 --  is divided by using these clock enable signals.
 --
 --  The Frequency parameter is:
@@ -20,17 +20,17 @@
 --
 --  The clk ouput signals are meant to be used as inputs to the output registers.
 --      sdc_clk_level : The ouput clock level on the next rising clk100 edge
---      sdc_clk_redge : The output clock will get a rising edge on the next rising 
+--      sdc_clk_redge : The output clock will get a rising edge on the next rising
 --                      clk100 edge
 --      sdc_clk_fedge : The output clock will get a falling edge on the next rising
---                      clk100 edge  
+--                      clk100 edge
 --
--- Dependencies: 
--- 
+-- Dependencies:
+--
 -- Revision:
 -- Revision 0.01 - File Created
 -- Additional Comments:
--- 
+--
 ----------------------------------------------------------------------------------
 
 
@@ -63,10 +63,10 @@ architecture rtl of sdc_clken_gen is
 
 begin
 
-    clockdiv_counter : process (Clk100) 
+    clockdiv_counter : process (Clk100)
         variable counter : integer range 0 to 127 := 0;
         variable clk_level : std_logic := '0';
-    
+
     begin
         if rising_edge(Clk100) then
             if Enable = '1' then
@@ -78,9 +78,9 @@ begin
                     else
                         sdc_clk_redge <= '0';
                         sdc_clk_fedge <= '1';
-                        clk_level := '0';                    
+                        clk_level := '0';
                     end if;
-                    
+
                     case Frequency is
                         when "00" => counter := F400K_DIV-1;
                         when "01" => counter := F25M_DIV-1;
@@ -90,18 +90,18 @@ begin
                 else
                     sdc_clk_redge <= '0';
                     sdc_clk_fedge <= '0';
-                    
+
                     counter := counter - 1;
                 end if;
-            
+
             else
                 sdc_clk_redge <= '0';
                 sdc_clk_fedge <= '0';
-                
+
                 counter := 0;
-                
+
             end if;
-            
+
             sdc_clk_level <= clk_level;
         end if;
     end process;
