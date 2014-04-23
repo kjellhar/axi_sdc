@@ -49,7 +49,7 @@ architecture rtl of sdc_shift32 is
 begin
     
     data_out <= shift_reg;
-    sdata_out <= shift_reg'high;
+    sdata_out <= shift_reg(shift_reg'high);
 
     process (Clk)
     begin

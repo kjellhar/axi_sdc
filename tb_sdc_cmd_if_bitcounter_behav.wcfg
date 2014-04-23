@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="tb_sdc_cmd_if_bitcounter_behav.wdb" id="1">
+         <top_modules>
+            <top_module name="tb_sdc_cmd_if_bitcounter" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <WVObjectSize size="12" />
+   <wvobject db_ref_id="1" type="logic" fp_name="/tb_sdc_cmd_if_bitcounter/clk100">
+      <obj_property name="ElementShortName">clk100</obj_property>
+      <obj_property name="ObjectShortName">clk100</obj_property>
+   </wvobject>
+   <wvobject db_ref_id="1" type="logic" fp_name="/tb_sdc_cmd_if_bitcounter/sim_en">
+      <obj_property name="ElementShortName">sim_en</obj_property>
+      <obj_property name="ObjectShortName">sim_en</obj_property>
+   </wvobject>
+   <wvobject db_ref_id="1" type="logic" fp_name="/tb_sdc_cmd_if_bitcounter/bitc_en">
+      <obj_property name="ElementShortName">bitc_en</obj_property>
+      <obj_property name="ObjectShortName">bitc_en</obj_property>
+   </wvobject>
+   <wvobject db_ref_id="1" type="logic" fp_name="/tb_sdc_cmd_if_bitcounter/bitc_clr">
+      <obj_property name="ElementShortName">bitc_clr</obj_property>
+      <obj_property name="ObjectShortName">bitc_clr</obj_property>
+   </wvobject>
+   <wvobject db_ref_id="1" type="logic" fp_name="/tb_sdc_cmd_if_bitcounter/cmd_pre_finish">
+      <obj_property name="ElementShortName">cmd_pre_finish</obj_property>
+      <obj_property name="ObjectShortName">cmd_pre_finish</obj_property>
+   </wvobject>
+   <wvobject db_ref_id="1" type="logic" fp_name="/tb_sdc_cmd_if_bitcounter/cmd_short_finish">
+      <obj_property name="ElementShortName">cmd_short_finish</obj_property>
+      <obj_property name="ObjectShortName">cmd_short_finish</obj_property>
+   </wvobject>
+   <wvobject db_ref_id="1" type="logic" fp_name="/tb_sdc_cmd_if_bitcounter/cmd_arg0_finish">
+      <obj_property name="ElementShortName">cmd_arg0_finish</obj_property>
+      <obj_property name="ObjectShortName">cmd_arg0_finish</obj_property>
+   </wvobject>
+   <wvobject db_ref_id="1" type="logic" fp_name="/tb_sdc_cmd_if_bitcounter/cmd_arg1_finish">
+      <obj_property name="ElementShortName">cmd_arg1_finish</obj_property>
+      <obj_property name="ObjectShortName">cmd_arg1_finish</obj_property>
+   </wvobject>
+   <wvobject db_ref_id="1" type="logic" fp_name="/tb_sdc_cmd_if_bitcounter/cmd_arg2_finish">
+      <obj_property name="ElementShortName">cmd_arg2_finish</obj_property>
+      <obj_property name="ObjectShortName">cmd_arg2_finish</obj_property>
+   </wvobject>
+   <wvobject db_ref_id="1" type="logic" fp_name="/tb_sdc_cmd_if_bitcounter/cmd_arg3_finish">
+      <obj_property name="ElementShortName">cmd_arg3_finish</obj_property>
+      <obj_property name="ObjectShortName">cmd_arg3_finish</obj_property>
+   </wvobject>
+   <wvobject db_ref_id="1" type="other" fp_name="/tb_sdc_cmd_if_bitcounter/count">
+      <obj_property name="ElementShortName">count</obj_property>
+      <obj_property name="ObjectShortName">count</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject db_ref_id="1" type="other" fp_name="/tb_sdc_cmd_if_bitcounter/PERIOD">
+      <obj_property name="ElementShortName">PERIOD</obj_property>
+      <obj_property name="ObjectShortName">PERIOD</obj_property>
+   </wvobject>
+</wave_config>

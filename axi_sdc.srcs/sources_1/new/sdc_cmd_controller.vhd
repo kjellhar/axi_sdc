@@ -46,25 +46,6 @@ entity sdc_cmd_controller is
 end sdc_cmd_controller;
 
 architecture rtl of sdc_cmd_controller is
-    component sdc_crc7 is
-        Port ( Clk : in std_logic;
-               Enable : in std_logic;
-               Clr : in std_logic;
-               SData_in : in std_logic;
-               Crc7_out : out std_logic_vector (6 downto 0));
-    end component;
-    
-    component sdc_shift32 is
-        Port ( Clk : in STD_LOGIC;
-               shift_en : in STD_LOGIC;
-               load_en : in STD_LOGIC;
-               sdata_in : in STD_LOGIC;
-               sdata_out : out STD_LOGIC;
-               data_in : in STD_LOGIC_VECTOR (31 downto 0);
-               data_out : out STD_LOGIC_VECTOR (31 downto 0));
-    end component;    
-
-
     type cmd_state_t is (
         IDLE,
         WRITE_CMD_INIT,
@@ -85,27 +66,6 @@ architecture rtl of sdc_cmd_controller is
     signal cmd_shift_reg : std_logic_vector (31 downto 0) := (others => '0');
     
 begin
-
-    u_crc7 : sdc_crc7
-        port map (
-            Clk => clk100,
-            Enable => Crc7_en,
-            Clr => Crc7_clr,
-            SData_in => crc7_data_stream,
-            Crc7_out, Crc7);
-
-    u_shiftreg : sdc_shift32
-        port map (
-            Clk => Clk100,
-            shift_en => shift_en,
-            load_en => shift_load_en,
-            sdata_in => sdata_in,
-            sdata_out => sdata_out,
-            data_in => pdata_in,
-            data_out => pdata_out);
-
-    
-    
     cmd_state_machine : process (clk100)
     begin
         if rising_edge(Clk100) then

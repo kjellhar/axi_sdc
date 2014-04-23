@@ -1,14 +1,15 @@
 ----------------------------------------------------------------------------------
--- Company: 
--- Engineer: 
+-- Company: Oppfinneriet
+-- Engineer: Kjell H Andersen
 -- 
 -- Create Date: 04/23/2014 06:10:58 AM
--- Design Name: 
+-- Design Name: axi_Sdc
 -- Module Name: sdc_defines_pkg - Behavioral
--- Project Name: 
--- Target Devices: 
+-- Project Name: axi_sdc
+-- Target Devices: Artix7
 -- Tool Versions: 
 -- Description: 
+--  Global definitions
 -- 
 -- Dependencies: 
 -- 
@@ -38,6 +39,8 @@ package sdc_defines_pkg is
     constant CMD13 : std_logic_vector (5 downto 0) := "001101";
     constant CMD15 : std_logic_vector (5 downto 0) := "001111";
 
+    constant SHORT_RESP : integer := 48;
+    constant LONG_RESP : integer := 136;
 
     constant F400K_DIV : integer := 125;
     constant F25M_DIV : integer := 2;
