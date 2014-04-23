@@ -1,14 +1,16 @@
 ----------------------------------------------------------------------------------
--- Company: 
--- Engineer: 
+-- Company: Oppfinneriet   
+-- Engineer: Kjell H Andersen
 -- 
 -- Create Date: 04/23/2014 05:43:48 AM
--- Design Name: 
+-- Design Name: axi_sdc
 -- Module Name: sdc_shift32 - rtl
--- Project Name: 
--- Target Devices: 
+-- Project Name: axi_sdc
+-- Target Devices: Artix7
 -- Tool Versions: 
 -- Description: 
+--  A 32 bit shift register with serial data in and out as well as
+--  parallell data out, and parallell load.
 -- 
 -- Dependencies: 
 -- 

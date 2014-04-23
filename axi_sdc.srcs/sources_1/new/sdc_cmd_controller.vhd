@@ -1,14 +1,18 @@
 ----------------------------------------------------------------------------------
--- Company: 
--- Engineer: 
+-- Company: Oppfinneriet   
+-- Engineer: Kjell H Andersen
 -- 
 -- Create Date: 04/23/2014 04:04:48 AM
--- Design Name: 
+-- Design Name: axi_sdc
 -- Module Name: sdc_cmd_controller - rtl
--- Project Name: 
--- Target Devices: 
+-- Project Name: axi_sdc
+-- Target Devices: Artix7
 -- Tool Versions: 
 -- Description: 
+--  The main state machine. This state machine runs at 100MHz and controls
+--  all the higher level funcitons. It leaves the low level bit pushing to
+--  specific controllers for each interface, sending them a strobe when they
+--  should start, and wait until they are no longer busy.
 -- 
 -- Dependencies: 
 -- 
@@ -51,14 +55,14 @@ architecture rtl of sdc_cmd_controller is
     end component;
     
     component sdc_shift32 is
-            Port ( Clk : in STD_LOGIC;
-                   shift_en : in STD_LOGIC;
-                   load_en : in STD_LOGIC;
-                   sdata_in : in STD_LOGIC;
-                   sdata_out : out STD_LOGIC;
-                   data_in : in STD_LOGIC_VECTOR (31 downto 0);
-                   data_out : out STD_LOGIC_VECTOR (31 downto 0));
-        end component;    
+        Port ( Clk : in STD_LOGIC;
+               shift_en : in STD_LOGIC;
+               load_en : in STD_LOGIC;
+               sdata_in : in STD_LOGIC;
+               sdata_out : out STD_LOGIC;
+               data_in : in STD_LOGIC_VECTOR (31 downto 0);
+               data_out : out STD_LOGIC_VECTOR (31 downto 0));
+    end component;    
 
 
     type cmd_state_t is (
@@ -136,6 +140,7 @@ begin
                             -- Commands with long response
                             when CMD2 | CMD9 | CMD10 => 
                                 cmd_state <= CMD_READ_LONGR_INIT; 
+                            
                             -- Read data commands
                             
                             -- Write data commands
@@ -169,5 +174,4 @@ begin
             end if;
         end if;
     end process;
-
 end rtl;

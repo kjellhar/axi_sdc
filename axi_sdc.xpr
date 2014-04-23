@@ -3,7 +3,7 @@
 <!--                                                         -->
 <!-- Copyright (c) 2001-2013 Xilinx Inc, All rights reserved -->
 
-<Project Version="7" Minor="0" Path="/home/kan015/xilinx/axi_sdc/axi_sdc.xpr">
+<Project Version="7" Minor="0" Path="/home/kjell/Xilinx/axi_sdc/axi_sdc.xpr">
   <DefaultLaunch Dir="$PRUNDIR"/>
   <Configuration>
     <Option Name="Id" Val="787c916d0cca479894f3f25c95f1d81e"/>
@@ -84,6 +84,7 @@
       </Config>
     </FileSet>
     <FileSet Name="sim_sdc_crc7" Type="SimulationSrcs" RelSrcDir="$PSRCDIR/sim_sdc_crc7">
+      <Filter Type="Srcs"/>
       <File Path="$PSRCDIR/sim_sdc_crc7/new/tb_sdc_crc7.vhd">
         <FileInfo>
           <Attr Name="UsedIn" Val="synthesis"/>
