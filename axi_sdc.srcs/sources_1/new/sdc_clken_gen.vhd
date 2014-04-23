@@ -36,6 +36,7 @@
 
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
+use work.sdc_defines_pkg.all;
 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
@@ -47,18 +48,16 @@ use IEEE.STD_LOGIC_1164.ALL;
 --use UNISIM.VComponents.all;
 
 entity sdc_clken_gen is
-    Port ( Clk100 : in STD_LOGIC;
-           Enable : in STD_LOGIC;
-           Frequency : in STD_LOGIC_VECTOR (1 downto 0);
-           sdc_clk_level : out STD_LOGIC;
-           sdc_clk_redge : out STD_LOGIC;
-           sdc_clk_fedge : out STD_LOGIC);
+    Port ( Clk100 : in std_logic;
+           Enable : in std_logic;
+           Frequency : in std_logic_vector (1 downto 0);
+           sdc_clk_level : out std_logic;
+           sdc_clk_redge : out std_logic;
+           sdc_clk_fedge : out std_logic);
 end sdc_clken_gen;
 
 architecture rtl of sdc_clken_gen is
-    constant F400K_DIV : integer := 125;
-    constant F25M_DIV : integer := 2;
-    constant F50M_DIV : integer := 1;
+
 
 
 begin
@@ -82,9 +81,9 @@ begin
                     end if;
 
                     case Frequency is
-                        when "00" => counter := F400K_DIV-1;
-                        when "01" => counter := F25M_DIV-1;
-                        when "10" => counter := F50M_DIV-1;
+                        when F400K => counter := F400K_DIV-1;
+                        when F25M => counter := F25M_DIV-1;
+                        when F50M => counter := F50M_DIV-1;
                         when others => counter := F400K_DIV-1;
                     end case;
                 else
