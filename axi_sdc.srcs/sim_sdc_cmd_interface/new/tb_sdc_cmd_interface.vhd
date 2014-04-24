@@ -80,6 +80,8 @@ architecture tb of tb_sdc_cmd_interface is
     signal sdc_clk_level : std_logic;
     signal sdc_clk_redge : std_logic;
     signal sdc_clk_fedge : std_logic;
+    
+    signal sdc_clk : std_logic;
 
     signal sdc_cmd_in : std_logic;
     signal sdc_cmd_out : std_logic;
@@ -131,6 +133,13 @@ begin
     begin
         if sim_en = '1' then
             clk100 <= not clk100 after PERIOD/2;
+        end if;
+     end process;
+     
+     clk_output : process (clk100)
+     begin
+        if rising_edge(clk100) then
+            sdc_clk <= sdc_clk_level;
         end if;
      end process;
 

@@ -10,7 +10,7 @@
          </top_modules>
       </db_ref>
    </db_ref_list>
-   <WVObjectSize size="36" />
+   <WVObjectSize size="38" />
    <wvobject db_ref_id="1" type="logic" fp_name="/tb_sdc_cmd_interface/clk100">
       <obj_property name="ElementShortName">clk100</obj_property>
       <obj_property name="ObjectShortName">clk100</obj_property>
@@ -42,6 +42,10 @@
    <wvobject db_ref_id="1" type="logic" fp_name="/tb_sdc_cmd_interface/sdc_cmd_in">
       <obj_property name="ElementShortName">sdc_cmd_in</obj_property>
       <obj_property name="ObjectShortName">sdc_cmd_in</obj_property>
+   </wvobject>
+   <wvobject db_ref_id="1" type="logic" fp_name="/tb_sdc_cmd_interface/sdc_clk">
+      <obj_property name="ElementShortName">sdc_clk</obj_property>
+      <obj_property name="ObjectShortName">sdc_clk</obj_property>
    </wvobject>
    <wvobject db_ref_id="1" type="logic" fp_name="/tb_sdc_cmd_interface/sdc_cmd_out">
       <obj_property name="ElementShortName">sdc_cmd_out</obj_property>
@@ -155,5 +159,9 @@
    <wvobject db_ref_id="1" type="logic" fp_name="/tb_sdc_cmd_interface/dut/crc7_sdata">
       <obj_property name="ElementShortName">crc7_sdata</obj_property>
       <obj_property name="ObjectShortName">crc7_sdata</obj_property>
+   </wvobject>
+   <wvobject db_ref_id="1" type="logic" fp_name="/tb_sdc_cmd_interface/dut/shift_load_en">
+      <obj_property name="ElementShortName">shift_load_en</obj_property>
+      <obj_property name="ObjectShortName">shift_load_en</obj_property>
    </wvobject>
 </wave_config>
