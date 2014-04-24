@@ -50,7 +50,6 @@ entity sdc_cmd_interface is
            
            cmd_index : in std_logic_vector (5 downto 0);
            cmd_argument : in std_logic_vector (31 downto 0);
-           load_cmd : in std_logic;
            
            data_out :out  std_logic_vector (31 downto 0);
            response_reg0_en : out std_logic;
@@ -101,6 +100,7 @@ end component;
         WRITE_CMD_CRC7);
         
     signal cmd_if_state : cmd_if_state_t := IDLE;
+    signal cmd_if_state_next : cmd_if_state_t;    
     
     signal bitc_clr : std_logic;
     
@@ -113,15 +113,14 @@ end component;
     
     signal crc7_en : std_logic;
     signal crc7_clr : std_logic;
-    signal crc7_data_stream : std_logic;
+    signal crc7_sdata : std_logic;
     signal crc7 : std_logic_vector (6 downto 0);
     signal shift_en : std_logic;
     signal shift_load_en : std_logic;
-    signal sdata_in : std_logic;
-    signal sdata_out : std_logic;
     signal pdata_in : std_logic_vector (31 downto 0);
     signal pdata_out : std_logic_vector (31 downto 0);
     signal bitc_en : std_logic;
+    signal sdc_cmd_out_i : std_logic;
 
     
 begin
@@ -130,7 +129,7 @@ begin
         Clk => Clk,
         Enable => Crc7_en,
         Clr => Crc7_clr,
-        SData_in => crc7_data_stream,
+        SData_in => crc7_sdata,
         Crc7_out => Crc7);
 
     u_shiftreg : sdc_shift32
@@ -138,8 +137,8 @@ begin
         Clk => Clk,
         shift_en => shift_en,
         load_en => shift_load_en,
-        sdata_in => sdata_in,
-        sdata_out => sdata_out,
+        sdata_in => sdc_cmd_in,
+        sdata_out => sdc_cmd_out_i,
         data_in => pdata_in,
         data_out => pdata_out);
 
@@ -158,104 +157,158 @@ begin
     cmd_if_state_machine : process (clk)
     begin
         if rising_edge(clk) then
-            if Enable = '1' then
-                case cmd_if_state is
-                    when IDLE =>
-                        bitc_clr <= '1';
-                        crc7_clr <= '1';
-                        crc7_en <= '0';
-                        shift_en <= '0';
-                        bitc_en <= '0';
-                        shift_load_en <= '0';
-                        pdata_in <= (others => '0');
-                        
-                        if write_cmd_strobe = '1' then     
-                            cmd_if_state <= WRITE_CMD_LOAD_PRE;
-                                           
-                        elsif read_short_strobe = '1' then
-                        
-                        elsif read_long_strobe = '1' then
-                        
-                        end if;
-                        
-                    when WRITE_CMD_LOAD_PRE =>
-                        bitc_clr <= '1';
-                        crc7_clr <= '1';
-                        crc7_en <= '0';
-                        shift_en <= '0';
-                        shift_load_en <= '1';
-                        bitc_en <= '0';
-                        pdata_in <= "01" & cmd_index & x"000000";
-                        
-                        
-                        cmd_if_state <= WRITE_CMD_PRE;
-                        
-                    when WRITE_CMD_PRE =>
-                        bitc_clr <= '0';
-                        crc7_clr <= '0';
-                        crc7_en <= sdc_clk_fedge;
-                        shift_en <= sdc_clk_fedge;
-                        shift_load_en <= '0';
-                        bitc_en <= sdc_clk_fedge;
-                        pdata_in <= (others => '0');
-                        
-                        if cmd_pre_finish = '1' then
-                            cmd_if_state <= WRITE_CMD_LOAD_ARG;
-                        end if;
-                    
-                    when WRITE_CMD_LOAD_ARG =>
-                        bitc_clr <= '0';
-                        crc7_clr <= '0';
-                        crc7_en <= '0';
-                        shift_en <= '0';
-                        shift_load_en <= '1';
-                        bitc_en <= '0';
-                        pdata_in <= cmd_argument;
-                        
-                        cmd_if_state <= WRITE_CMD_ARG;
-                                           
-                    when WRITE_CMD_ARG =>
-                        bitc_clr <= '0';
-                        crc7_clr <= '0';
-                        crc7_en <= sdc_clk_fedge;
-                        shift_en <= sdc_clk_fedge;
-                        shift_load_en <= '0';
-                        bitc_en <= sdc_clk_fedge;
-                        pdata_in <= (others => '0');
-                        
-                        if cmd_arg0_finish = '1' then
-                            cmd_if_state <= WRITE_CMD_LOAD_CRC7;
-                        end if;  
-                                          
-                    when WRITE_CMD_LOAD_CRC7 =>
-                        bitc_clr <= '0';
-                        crc7_clr <= '0';
-                        crc7_en <= '0';
-                        shift_en <= '0';
-                        shift_load_en <= '1';
-                        bitc_en <= '0';
-                        pdata_in <= crc7 & '1' & x"000000";
-                        
-                        cmd_if_state <= WRITE_CMD_ARG;                    
-                        
-                    when WRITE_CMD_CRC7 =>
-                        bitc_clr <= '0';
-                        crc7_clr <= '0';
-                        crc7_en <= sdc_clk_fedge;
-                        shift_en <= sdc_clk_fedge;
-                        shift_load_en <= '0';
-                        bitc_en <= sdc_clk_fedge;
-                        pdata_in <= (others => '0');
-                        
-                        if cmd_short_finish = '1' then
-                            cmd_if_state <= IDLE;
-                        end if;                                            
-                    when others =>
-                end case;
+            if Enable='1' then
+                cmd_if_state <= cmd_if_state_next;
             end if;
         end if;
     end process;
+    
+    
+    cmd_if_state_logic : process (
+                    cmd_if_state,
+                    write_cmd_strobe,
+                    read_short_strobe,
+                    read_long_strobe,
+                    cmd_index,
+                    cmd_argument,
+                    sdc_clk_fedge,
+                    sdc_clk_redge,
+                    cmd_pre_finish,
+                    cmd_short_finish,
+                    cmd_arg0_finish,
+                    cmd_arg1_finish,
+                    cmd_arg2_finish,
+                    cmd_arg3_finish)
+    begin
+        case cmd_if_state is
+            when IDLE =>
+                cmd_busy <= '0';
+                bitc_clr <= '1';
+                crc7_clr <= '1';
+                crc7_en <= '0';
+                shift_en <= '0';
+                bitc_en <= '0';
+                shift_load_en <= '0';
+                pdata_in <= (others => '0');
+                crc7_sdata <= '0';
+                
+                if write_cmd_strobe = '1' then     
+                    cmd_if_state_next <= WRITE_CMD_LOAD_PRE;
+                                   
+                elsif read_short_strobe = '1' then
+                    cmd_if_state_next <= cmd_if_state;
+                elsif read_long_strobe = '1' then
+                    cmd_if_state_next <= cmd_if_state;
+                else
+                    cmd_if_state_next <= cmd_if_state;
+                end if;
+                
+            when WRITE_CMD_LOAD_PRE =>
+                cmd_busy <= '1';
+                bitc_clr <= '1';
+                crc7_clr <= '1';
+                crc7_en <= '0';
+                shift_en <= '0';
+                shift_load_en <= '1';
+                bitc_en <= '0';
+                pdata_in <= "01" & cmd_index & x"000000";
+                crc7_sdata <= '0';
+                
+                
+                cmd_if_state_next <= WRITE_CMD_PRE;
+                
+            when WRITE_CMD_PRE =>
+                cmd_busy <= '1';
+                bitc_clr <= '0';
+                crc7_clr <= '0';
+                crc7_en <= sdc_clk_fedge;
+                shift_en <= sdc_clk_fedge;
+                shift_load_en <= '0';
+                bitc_en <= sdc_clk_fedge;
+                pdata_in <= (others => '0');
+                crc7_sdata <= sdc_cmd_out_i;
+                
+                if cmd_pre_finish = '1' then
+                    cmd_if_state_next <= WRITE_CMD_LOAD_ARG;
+                else
+                    cmd_if_state_next <= cmd_if_state;
+                end if;
+            
+            when WRITE_CMD_LOAD_ARG =>
+                cmd_busy <= '1';
+                bitc_clr <= '0';
+                crc7_clr <= '0';
+                crc7_en <= '0';
+                shift_en <= '0';
+                shift_load_en <= '1';
+                bitc_en <= '0';
+                pdata_in <= cmd_argument;
+                crc7_sdata <= sdc_cmd_out_i;
+                
+                cmd_if_state_next <= WRITE_CMD_ARG;
+                                   
+            when WRITE_CMD_ARG =>
+                cmd_busy <= '1';
+                bitc_clr <= '0';
+                crc7_clr <= '0';
+                crc7_en <= sdc_clk_fedge;
+                shift_en <= sdc_clk_fedge;
+                shift_load_en <= '0';
+                bitc_en <= sdc_clk_fedge;
+                pdata_in <= (others => '0');
+                crc7_sdata <= sdc_cmd_out_i;
+                
+                if cmd_arg0_finish = '1' then
+                    cmd_if_state_next <= WRITE_CMD_LOAD_CRC7;
+                else
+                    cmd_if_state_next <= cmd_if_state;
+                end if;  
+                                  
+            when WRITE_CMD_LOAD_CRC7 =>
+                cmd_busy <= '1';
+                bitc_clr <= '0';
+                crc7_clr <= '0';
+                crc7_en <= '0';
+                shift_en <= '0';
+                shift_load_en <= '1';
+                bitc_en <= '0';
+                pdata_in <= crc7 & '1' & x"000000";
+                crc7_sdata <= '0';
+                
+                cmd_if_state_next <= WRITE_CMD_CRC7;                    
+                
+            when WRITE_CMD_CRC7 =>
+                cmd_busy <= '1';
+                bitc_clr <= '0';
+                crc7_clr <= '0';
+                crc7_en <= '0';
+                shift_en <= sdc_clk_fedge;
+                shift_load_en <= '0';
+                bitc_en <= sdc_clk_fedge;
+                pdata_in <= (others => '0');
+                crc7_sdata <= '0';
+                
+                if cmd_short_finish = '1' then
+                    cmd_if_state_next <= IDLE;
+                else
+                    cmd_if_state_next <= cmd_if_state;
+                end if;                                            
+            when others =>
+                cmd_busy <= '0';
+                bitc_clr <= '1';
+                crc7_clr <= '1';
+                crc7_en <= '0';
+                shift_en <= '0';
+                bitc_en <= '0';
+                shift_load_en <= '0';
+                pdata_in <= (others => '0');  
+                crc7_sdata <= '0';          
+            
+                cmd_if_state_next <= cmd_if_state;
+        end case;
+    end process;
 
+    sdc_cmd_out <= sdc_cmd_out_i;
 
 
 

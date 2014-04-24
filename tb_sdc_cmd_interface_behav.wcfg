@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="tb_sdc_cmd_interface_behav.wdb" id="1">
+         <top_modules>
+            <top_module name="sdc_defines_pkg" />
+            <top_module name="tb_sdc_cmd_interface" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <WVObjectSize size="36" />
+   <wvobject db_ref_id="1" type="logic" fp_name="/tb_sdc_cmd_interface/clk100">
+      <obj_property name="ElementShortName">clk100</obj_property>
+      <obj_property name="ObjectShortName">clk100</obj_property>
+   </wvobject>
+   <wvobject db_ref_id="1" type="logic" fp_name="/tb_sdc_cmd_interface/sim_en">
+      <obj_property name="ElementShortName">sim_en</obj_property>
+      <obj_property name="ObjectShortName">sim_en</obj_property>
+   </wvobject>
+   <wvobject db_ref_id="1" type="logic" fp_name="/tb_sdc_cmd_interface/Enable">
+      <obj_property name="ElementShortName">Enable</obj_property>
+      <obj_property name="ObjectShortName">Enable</obj_property>
+   </wvobject>
+   <wvobject db_ref_id="1" type="array" fp_name="/tb_sdc_cmd_interface/Frequency">
+      <obj_property name="ElementShortName">Frequency[1:0]</obj_property>
+      <obj_property name="ObjectShortName">Frequency[1:0]</obj_property>
+   </wvobject>
+   <wvobject db_ref_id="1" type="logic" fp_name="/tb_sdc_cmd_interface/sdc_clk_level">
+      <obj_property name="ElementShortName">sdc_clk_level</obj_property>
+      <obj_property name="ObjectShortName">sdc_clk_level</obj_property>
+   </wvobject>
+   <wvobject db_ref_id="1" type="logic" fp_name="/tb_sdc_cmd_interface/sdc_clk_redge">
+      <obj_property name="ElementShortName">sdc_clk_redge</obj_property>
+      <obj_property name="ObjectShortName">sdc_clk_redge</obj_property>
+   </wvobject>
+   <wvobject db_ref_id="1" type="logic" fp_name="/tb_sdc_cmd_interface/sdc_clk_fedge">
+      <obj_property name="ElementShortName">sdc_clk_fedge</obj_property>
+      <obj_property name="ObjectShortName">sdc_clk_fedge</obj_property>
+   </wvobject>
+   <wvobject db_ref_id="1" type="logic" fp_name="/tb_sdc_cmd_interface/sdc_cmd_in">
+      <obj_property name="ElementShortName">sdc_cmd_in</obj_property>
+      <obj_property name="ObjectShortName">sdc_cmd_in</obj_property>
+   </wvobject>
+   <wvobject db_ref_id="1" type="logic" fp_name="/tb_sdc_cmd_interface/sdc_cmd_out">
+      <obj_property name="ElementShortName">sdc_cmd_out</obj_property>
+      <obj_property name="ObjectShortName">sdc_cmd_out</obj_property>
+   </wvobject>
+   <wvobject db_ref_id="1" type="logic" fp_name="/tb_sdc_cmd_interface/write_cmd_strobe">
+      <obj_property name="ElementShortName">write_cmd_strobe</obj_property>
+      <obj_property name="ObjectShortName">write_cmd_strobe</obj_property>
+   </wvobject>
+   <wvobject db_ref_id="1" type="logic" fp_name="/tb_sdc_cmd_interface/read_short_strobe">
+      <obj_property name="ElementShortName">read_short_strobe</obj_property>
+      <obj_property name="ObjectShortName">read_short_strobe</obj_property>
+   </wvobject>
+   <wvobject db_ref_id="1" type="logic" fp_name="/tb_sdc_cmd_interface/read_long_strobe">
+      <obj_property name="ElementShortName">read_long_strobe</obj_property>
+      <obj_property name="ObjectShortName">read_long_strobe</obj_property>
+   </wvobject>
+   <wvobject db_ref_id="1" type="logic" fp_name="/tb_sdc_cmd_interface/cmd_busy">
+      <obj_property name="ElementShortName">cmd_busy</obj_property>
+      <obj_property name="ObjectShortName">cmd_busy</obj_property>
+   </wvobject>
+   <wvobject db_ref_id="1" type="array" fp_name="/tb_sdc_cmd_interface/cmd_index">
+      <obj_property name="ElementShortName">cmd_index[5:0]</obj_property>
+      <obj_property name="ObjectShortName">cmd_index[5:0]</obj_property>
+   </wvobject>
+   <wvobject db_ref_id="1" type="array" fp_name="/tb_sdc_cmd_interface/cmd_argument">
+      <obj_property name="ElementShortName">cmd_argument[31:0]</obj_property>
+      <obj_property name="ObjectShortName">cmd_argument[31:0]</obj_property>
+   </wvobject>
+   <wvobject db_ref_id="1" type="array" fp_name="/tb_sdc_cmd_interface/data_out">
+      <obj_property name="ElementShortName">data_out[31:0]</obj_property>
+      <obj_property name="ObjectShortName">data_out[31:0]</obj_property>
+   </wvobject>
+   <wvobject db_ref_id="1" type="logic" fp_name="/tb_sdc_cmd_interface/response_reg0_en">
+      <obj_property name="ElementShortName">response_reg0_en</obj_property>
+      <obj_property name="ObjectShortName">response_reg0_en</obj_property>
+   </wvobject>
+   <wvobject db_ref_id="1" type="logic" fp_name="/tb_sdc_cmd_interface/response_reg1_en">
+      <obj_property name="ElementShortName">response_reg1_en</obj_property>
+      <obj_property name="ObjectShortName">response_reg1_en</obj_property>
+   </wvobject>
+   <wvobject db_ref_id="1" type="logic" fp_name="/tb_sdc_cmd_interface/response_reg2_en">
+      <obj_property name="ElementShortName">response_reg2_en</obj_property>
+      <obj_property name="ObjectShortName">response_reg2_en</obj_property>
+   </wvobject>
+   <wvobject db_ref_id="1" type="logic" fp_name="/tb_sdc_cmd_interface/response_reg3_en">
+      <obj_property name="ElementShortName">response_reg3_en</obj_property>
+      <obj_property name="ObjectShortName">response_reg3_en</obj_property>
+   </wvobject>
+   <wvobject db_ref_id="1" type="other" fp_name="/tb_sdc_cmd_interface/PERIOD">
+      <obj_property name="ElementShortName">PERIOD</obj_property>
+      <obj_property name="ObjectShortName">PERIOD</obj_property>
+   </wvobject>
+   <wvobject db_ref_id="1" type="other" fp_name="/tb_sdc_cmd_interface/dut/cmd_if_state">
+      <obj_property name="ElementShortName">cmd_if_state</obj_property>
+      <obj_property name="ObjectShortName">cmd_if_state</obj_property>
+   </wvobject>
+   <wvobject db_ref_id="1" type="logic" fp_name="/tb_sdc_cmd_interface/dut/u_sdc_cmd_if_bitcounter/Clk">
+      <obj_property name="ElementShortName">Clk</obj_property>
+      <obj_property name="ObjectShortName">Clk</obj_property>
+   </wvobject>
+   <wvobject db_ref_id="1" type="other" fp_name="/tb_sdc_cmd_interface/dut/u_sdc_cmd_if_bitcounter/bit_count">
+      <obj_property name="ElementShortName">bit_count</obj_property>
+      <obj_property name="ObjectShortName">bit_count</obj_property>
+      <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject db_ref_id="1" type="logic" fp_name="/tb_sdc_cmd_interface/dut/u_sdc_cmd_if_bitcounter/bitc_clr">
+      <obj_property name="ElementShortName">bitc_clr</obj_property>
+      <obj_property name="ObjectShortName">bitc_clr</obj_property>
+   </wvobject>
+   <wvobject db_ref_id="1" type="logic" fp_name="/tb_sdc_cmd_interface/dut/u_sdc_cmd_if_bitcounter/bitc_en">
+      <obj_property name="ElementShortName">bitc_en</obj_property>
+      <obj_property name="ObjectShortName">bitc_en</obj_property>
+   </wvobject>
+   <wvobject db_ref_id="1" type="logic" fp_name="/tb_sdc_cmd_interface/dut/u_sdc_cmd_if_bitcounter/cmd_arg0_finish">
+      <obj_property name="ElementShortName">cmd_arg0_finish</obj_property>
+      <obj_property name="ObjectShortName">cmd_arg0_finish</obj_property>
+   </wvobject>
+   <wvobject db_ref_id="1" type="logic" fp_name="/tb_sdc_cmd_interface/dut/u_sdc_cmd_if_bitcounter/cmd_arg1_finish">
+      <obj_property name="ElementShortName">cmd_arg1_finish</obj_property>
+      <obj_property name="ObjectShortName">cmd_arg1_finish</obj_property>
+   </wvobject>
+   <wvobject db_ref_id="1" type="logic" fp_name="/tb_sdc_cmd_interface/dut/u_sdc_cmd_if_bitcounter/cmd_arg2_finish">
+      <obj_property name="ElementShortName">cmd_arg2_finish</obj_property>
+      <obj_property name="ObjectShortName">cmd_arg2_finish</obj_property>
+   </wvobject>
+   <wvobject db_ref_id="1" type="logic" fp_name="/tb_sdc_cmd_interface/dut/u_sdc_cmd_if_bitcounter/cmd_arg3_finish">
+      <obj_property name="ElementShortName">cmd_arg3_finish</obj_property>
+      <obj_property name="ObjectShortName">cmd_arg3_finish</obj_property>
+   </wvobject>
+   <wvobject db_ref_id="1" type="logic" fp_name="/tb_sdc_cmd_interface/dut/u_sdc_cmd_if_bitcounter/cmd_pre_finish">
+      <obj_property name="ElementShortName">cmd_pre_finish</obj_property>
+      <obj_property name="ObjectShortName">cmd_pre_finish</obj_property>
+   </wvobject>
+   <wvobject db_ref_id="1" type="logic" fp_name="/tb_sdc_cmd_interface/dut/u_sdc_cmd_if_bitcounter/cmd_short_finish">
+      <obj_property name="ElementShortName">cmd_short_finish</obj_property>
+      <obj_property name="ObjectShortName">cmd_short_finish</obj_property>
+   </wvobject>
+   <wvobject db_ref_id="1" type="array" fp_name="/tb_sdc_cmd_interface/dut/crc7">
+      <obj_property name="ElementShortName">crc7[6:0]</obj_property>
+      <obj_property name="ObjectShortName">crc7[6:0]</obj_property>
+   </wvobject>
+   <wvobject db_ref_id="1" type="logic" fp_name="/tb_sdc_cmd_interface/dut/crc7_clr">
+      <obj_property name="ElementShortName">crc7_clr</obj_property>
+      <obj_property name="ObjectShortName">crc7_clr</obj_property>
+   </wvobject>
+   <wvobject db_ref_id="1" type="logic" fp_name="/tb_sdc_cmd_interface/dut/crc7_en">
+      <obj_property name="ElementShortName">crc7_en</obj_property>
+      <obj_property name="ObjectShortName">crc7_en</obj_property>
+   </wvobject>
+   <wvobject db_ref_id="1" type="logic" fp_name="/tb_sdc_cmd_interface/dut/crc7_sdata">
+      <obj_property name="ElementShortName">crc7_sdata</obj_property>
+      <obj_property name="ObjectShortName">crc7_sdata</obj_property>
+   </wvobject>
+</wave_config>
