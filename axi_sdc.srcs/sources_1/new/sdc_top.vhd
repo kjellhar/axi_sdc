@@ -99,11 +99,11 @@ architecture rtl of sdc_top is
            sdc_clk_fedge : out std_logic);
     end component;
     
-    component sdc_clk is
+    component sdc_clkgate is
     Port ( clk100 : in STD_LOGIC;
            sdc_clk_level : in STD_LOGIC;
            enable : in STD_LOGIC;
-           sdc_clk : in STD_LOGIC);
+           sdc_clk : out STD_LOGIC);
     end component;    
 
     signal Frequency : std_logic_vector(1 downto 0);
@@ -124,7 +124,7 @@ begin
         sdc_clk_fedge => sdc_clk_fedge);
 
 
-    u_sdc_clkgate : sdc_clk
+    u_sdc_clkgate : sdc_clkgate
     port map (
         clk100 => clk100,
         sdc_clk_level => sdc_clk_level,

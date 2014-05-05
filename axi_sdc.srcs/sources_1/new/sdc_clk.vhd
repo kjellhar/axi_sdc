@@ -31,21 +31,21 @@ use IEEE.STD_LOGIC_1164.ALL;
 --library UNISIM;
 --use UNISIM.VComponents.all;
 
-entity sdc_clk is
+entity sdc_clkgate is
     Port ( clk100 : in STD_LOGIC;
            sdc_clk_level : in STD_LOGIC;
            enable : in STD_LOGIC;
-           sdc_clk : in STD_LOGIC);
-end sdc_clk;
+           sdc_clk : out STD_LOGIC);
+end sdc_clkgate;
 
-architecture rtl of sdc_clk is
+architecture rtl of sdc_clkgate is
 
 begin
 
     process (clk100)
     begin
         if rising_edge(clk100) then
-            if enabel='1' then
+            if enable='1' then
                 sdc_clk <= sdc_clk_level;
             end if;
         end if;
