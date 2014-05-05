@@ -21,7 +21,7 @@
 --      reg_command         : SD/MMC command 
 --                              [31:6] Reserved
 --                              [5:0]  Command index
---      reg_response0-3     : Response to commands. For short resposne, only 
+--      reg_response0-3     : Response to commands. For short response, only 
 --                              g_response0 is used.
 --      reg_control         : Controls the behaviour of the SDC controller
 --                              [31:0] Reserved
@@ -97,13 +97,21 @@ architecture rtl of sdc_top is
            sdc_clk_level : out std_logic;
            sdc_clk_redge : out std_logic;
            sdc_clk_fedge : out std_logic);
-end component;
+    end component;
+    
+    component sdc_clk is
+    Port ( clk100 : in STD_LOGIC;
+           sdc_clk_level : in STD_LOGIC;
+           enable : in STD_LOGIC;
+           sdc_clk : in STD_LOGIC);
+    end component;    
 
     signal Frequency : std_logic_vector(1 downto 0);
     signal sdc_clk_level : std_logic;
     signal sdc_clk_redge : std_logic;
     signal sdc_clk_fedge : std_logic;    
 
+    signal sdc_clk_enable : std_logic;
 
 begin
     u_sdc_clken_gen : sdc_clken_gen
@@ -114,5 +122,13 @@ begin
         sdc_clk_level => sdc_clk_level, 
         sdc_clk_redge => sdc_clk_redge, 
         sdc_clk_fedge => sdc_clk_fedge);
+
+
+    u_sdc_clkgate : sdc_clk
+    port map (
+        clk100 => clk100,
+        sdc_clk_level => sdc_clk_level,
+        enable => sdc_clk_enable,
+        sdc_clk => SDC_CLK);
 
 end rtl;
