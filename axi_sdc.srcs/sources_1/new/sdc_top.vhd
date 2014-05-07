@@ -82,9 +82,7 @@ entity sdc_top is
         reg_event_w     : out std_logic_vector (31 downto 0);
         
         -- Other internal control signals
-        cmd_trig : in std_logic;    -- Triggers a new command cycle
-        cmd_busy : out std_logic;   -- Unable to accept new command 
-        int : out std_logic
+        interrupt : out std_logic
     );
 
 end sdc_top;
@@ -134,6 +132,18 @@ architecture rtl of sdc_top is
     signal sdc_clk_fedge : std_logic;    
 
     signal sdc_clk_enable : std_logic;
+    signal cmd_tx_din : std_logic_vector(7 downto 0);
+    signal cmd_tx_wr_en : std_logic;
+    signal cmd_tx_full : std_logic;
+    signal cmd_tx_empty : std_logic;
+    signal cmd_rx_dout : std_logic_vector(7 downto 0);
+    signal cmd_rx_rd_en : std_logic;
+    signal cmd_rx_full : std_logic;
+    signal cmd_rx_empty : std_logic;
+    signal cmd_transmit : std_logic;
+    signal cmd_length : std_logic;
+    signal cmd_start : std_logic;
+    signal cmd_busy : std_logic;
 
 begin
     u_sdc_clken_gen : sdc_clken_gen
