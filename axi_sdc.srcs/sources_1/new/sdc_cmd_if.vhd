@@ -1,15 +1,45 @@
 ----------------------------------------------------------------------------------
--- Company: 
--- Engineer: 
+-- Company: Oppfinneriet
+-- Engineer: Kjell H Andersen
 -- 
 -- Create Date: 05/06/2014 12:28:59 AM
--- Design Name: 
+-- Design Name: axi_sdc
 -- Module Name: sdc_cmd_if - rtl
--- Project Name: 
--- Target Devices: 
+-- Project Name: axi_sdc
+-- Target Devices: Artix7
 -- Tool Versions: 
 -- Description: 
--- 
+--  Implements the physical interface to the CMD line. The internal interface is 
+--  byte oriented, and both read and write data is buffered in FIFOs.
+--  This module does not check or generate CRC.
+--
+--  Write transactions are always 48 bits long (6 bytes) including CRC7 at the end.
+--   All 6 bytes must be loaded into the TX_FIFO on 6 consecutive clock cycles.
+--   When at least one byte is loaded. the transaction may be started.
+--   pull transmit <= '1'
+--   pull start <= '1'
+--   The SDC clock must be running. The data is shifted out on the falling edge.
+--   The busy line will og high when the transaction starts.
+--   The clock must toggle, and transmit must be held during the entire transaction.
+--   When the busy line goes low, the transaction is ended and start must immediately
+--   be pulled low.
+--
+--  Read transactions can be 48 bits or 136 bits long. This is selected with the
+--   length signal.
+--      length = 0 :  48 bits
+--      length = 1 :  136 bits
+--   To start a read transaction
+--   pull transmit <= '0'
+--   pull length to desired length
+--   pull start <= '1'
+--   The SDC clock must be running. The data is sampled on the rising edge.
+--   The busy line will go high when the transaction starts.
+--   The transmit and length signals must be held during the entire transaction.
+--   When the busy line goes low, the transaction has ended and start must immediately
+--   be pulled low.
+--   The data can then be fetched from the RX_FIFO. This may also be done during the
+--   transaction by monitoring the rx_emtpy signal.
+--
 -- Dependencies: 
 -- 
 -- Revision:

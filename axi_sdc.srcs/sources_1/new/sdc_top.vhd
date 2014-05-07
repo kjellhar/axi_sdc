@@ -105,6 +105,28 @@ architecture rtl of sdc_top is
            enable : in STD_LOGIC;
            sdc_clk : out STD_LOGIC);
     end component;    
+    
+    component sdc_cmd_if is
+    Port ( clk100 : in STD_LOGIC;
+        enable : in STD_LOGIC;
+        sdc_cmd_io : inout std_logic;
+        sdc_clk_redge : in std_logic;
+        sdc_clk_fedge : in std_logic;
+        tx_din : in STD_LOGIC_VECTOR (7 downto 0);
+        tx_wr_en : in STD_LOGIC;
+        tx_full : out STD_LOGIC;
+        tx_empty : out STD_LOGIC;
+        rx_dout : out STD_LOGIC_VECTOR (7 downto 0);
+        rx_rd_en : in STD_LOGIC;
+        rx_full : out STD_LOGIC;
+        rx_empty : out STD_LOGIC;
+        transmit : in STD_LOGIC;
+        length : in std_logic;
+        start : in STD_LOGIC;
+        busy : out STD_LOGIC);
+    end component;
+
+    
 
     signal Frequency : std_logic_vector(1 downto 0);
     signal sdc_clk_level : std_logic;
@@ -123,12 +145,31 @@ begin
         sdc_clk_redge => sdc_clk_redge, 
         sdc_clk_fedge => sdc_clk_fedge);
 
-
     u_sdc_clkgate : sdc_clkgate
     port map (
         clk100 => clk100,
         sdc_clk_level => sdc_clk_level,
         enable => sdc_clk_enable,
         sdc_clk => SDC_CLK);
+
+    u_sdc_cmd_if : sdc_cmd_if 
+    port map  ( 
+        clk100 => clk100,
+        enable => enable,
+        sdc_cmd_io => SDC_CMD,
+        sdc_clk_redge => sdc_clk_redge,
+        sdc_clk_fedge =>sdc_clk_fedge ,
+        tx_din => cmd_tx_din,
+        tx_wr_en => cmd_tx_wr_en,
+        tx_full => cmd_tx_full,
+        tx_empty => cmd_tx_empty,
+        rx_dout => cmd_rx_dout,
+        rx_rd_en => cmd_rx_rd_en,
+        rx_full => cmd_rx_full,
+        rx_empty => cmd_rx_empty,
+        transmit => cmd_transmit,
+        length => cmd_length,
+        start => cmd_start,
+        busy => cmd_busy);
 
 end rtl;
