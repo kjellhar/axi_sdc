@@ -1,10 +1,10 @@
 // Copyright 1986-2014 Xilinx, Inc. All Rights Reserved.
 // --------------------------------------------------------------------------------
-// Tool Version: Vivado v.2014.1 (lin64) Build 881834 Fri Apr  4 13:56:21 MDT 2014
-// Date        : Tue May  6 00:53:55 2014
-// Host        : ubuntu running 64-bit Ubuntu 13.10
+// Tool Version: Vivado v.2014.1 (lin64) Build 881834 Fri Apr  4 14:00:25 MDT 2014
+// Date        : Wed May  7 04:01:29 2014
+// Host        : localhost.localdomain running 64-bit unknown
 // Command     : write_verilog -force -mode synth_stub
-//               /home/kjell/Xilinx/axi_sdc/axi_sdc.srcs/sources_1/ip/cmd_fifo/cmd_fifo_stub.v
+//               /home/kan015/xilinx/axi_sdc/axi_sdc.srcs/sources_1/ip/cmd_fifo/cmd_fifo_stub.v
 // Design      : cmd_fifo
 // Purpose     : Stub declaration of top-level module interface
 // Device      : xc7a100tcsg324-1
