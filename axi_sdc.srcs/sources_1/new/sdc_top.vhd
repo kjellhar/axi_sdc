@@ -27,6 +27,21 @@
 --                              [31:0] Reserved
 --      reg_timeout         : Timeout value in ms
 --      reg_event           : Indicates the slource of a flagged event
+--                              [0]  : Command completed successfully
+--                              [1]  : Invalid command
+--                              [2]  : Timeout
+--                              [3]  : CMD write error
+--                              [4]  : Response CRC error
+--                              [5]  : DAT0-7 write error
+--                              [8]  : DAT0 read CRC error
+--                              [9]  : DAT1 read CRC error
+--                              [10] : DAT2 read CRC error
+--                              [11] : DAT3 read CRC error
+--                              [12] : DAT4 read CRC error
+--                              [13] : DAT5 read CRC error
+--                              [14] : DAT6 read CRC error
+--                              [15] : DAT7 read CRC error
+--
 --      reg_event_enable    : Enables individual event sources.
 --                                    
 --
@@ -82,7 +97,8 @@ entity sdc_top is
         reg_event_w     : out std_logic_vector (31 downto 0);
         
         -- Other internal control signals
-        interrupt : out std_logic
+        interrupt : out std_logic;
+        command_wr : in std_logic
     );
 
 end sdc_top;
