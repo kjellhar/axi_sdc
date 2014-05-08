@@ -40,6 +40,11 @@
 --   be pulled low.
 --   The data can then be fetched from the RX_FIFO. This may also be done during the
 --   transaction by monitoring the rx_emtpy signal.
+--   The CRC byte (including the stopbit) is not pushed to the FIFO.
+--   only 5 or 16 bytes are avaiable when the transaction is finished.
+--   
+--   For a R3 response, the ignore_crc must be pulled high to stop the crc_error
+--   from being triggered. 
 --
 -- Dependencies: 
 -- 
@@ -79,7 +84,9 @@ entity sdc_cmd_if is
            transmit : in STD_LOGIC;
            length : in std_logic;
            start : in STD_LOGIC;
-           busy : out STD_LOGIC);
+           busy : out STD_LOGIC;
+           ignore_crc : in std_logic;
+           rx_crc_error : out std_logic);
 end sdc_cmd_if;
 
 architecture rtl of sdc_cmd_if is
@@ -137,6 +144,7 @@ architecture rtl of sdc_cmd_if is
     signal crc_clear : std_logic;
     signal crc_enable : std_logic;
     signal load_crc : std_logic;
+    signal crc_error_i : std_logic := '0';
     
     
     type cmdif_state_t is (
@@ -147,8 +155,12 @@ architecture rtl of sdc_cmd_if is
         WR_SHIFT_DATA,
         WR_END,
         RD_START,
+        RD_SHIFT_DATA_FIRST_LONG,
         RD_SHIFT_DATA,
+        RD_GET_CRC,
+        RD_DATA_RDY_FIRST_LONG,
         RD_DATA_RDY,
+        RD_CHECK_CRC,
         RD_END
     );
     
@@ -230,11 +242,30 @@ begin
     shift_state : process (clk100)
     begin
         if rising_edge(clk100) then
-            if enable='1' and enable='1' then
+            if enable='1' then
                 cmdif_state <= cmdif_state_next;
             end if;
         end if;
     end process;
+    
+    crc_error_reg : process (clk100) 
+    begin
+        if rising_edge(clk100) then
+            if (cmdif_state = IDLE and start='1') or ignore_crc='1' then
+                crc_error_i <= '0';        
+            elsif clk_enable='1' then
+                if cmdif_state = RD_CHECK_CRC then
+                    if crc7 = shift_data(7 downto 1) then
+                        crc_error_i <= '0';
+                    else
+                        crc_error_i <= '1';
+                    end if;
+                end if;
+            end if;
+        end if;
+    end process;
+    
+    rx_crc_error <= crc_error_i;
     
     
     shift_nextstate_logic : process (
@@ -304,10 +335,26 @@ begin
 
             when RD_START =>
                 if sdc_cmd_io='0' and clk_enable='1' then
-                    cmdif_state_next <= RD_SHIFT_DATA;
+                    if length='1' then
+                        cmdif_State_next <= RD_SHIFT_DATA_FIRST_LONG;
+                    else
+                        cmdif_state_next <= RD_SHIFT_DATA;
+                    end if;
                 else
                     cmdif_state_next <= RD_START;
                 end if;
+                
+            when RD_SHIFT_DATA_FIRST_LONG =>
+                if clk_enable='1' then
+                    if bit_count(2 downto 0)="110" then
+                        cmdif_state_next <= RD_DATA_RDY_FIRST_LONG;
+                    else
+                        cmdif_state_next <= RD_SHIFT_DATA_FIRST_LONG;
+                    end if;
+                else
+                    cmdif_state_next <= RD_SHIFT_DATA_FIRST_LONG;                       
+                end if;                     
+                
 
             when RD_SHIFT_DATA =>
                 if clk_enable='1' then
@@ -318,17 +365,42 @@ begin
                     end if;
                 else
                     cmdif_state_next <= RD_SHIFT_DATA;                       
-                end if;                     
+                end if;            
+                
+            when RD_GET_CRC =>
+                if clk_enable='1' then
+                    if bit_count(2 downto 0)="110" then
+                        cmdif_state_next <= RD_CHECK_CRC;
+                    else
+                        cmdif_state_next <= RD_GET_CRC;
+                    end if;
+                else
+                    cmdif_state_next <= RD_GET_CRC;                       
+                end if;                                           
 
+            when RD_DATA_RDY_FIRST_LONG =>
+                if clk_enable='1' then                
+                    cmdif_state_next <= RD_SHIFT_DATA;
+                else
+                    cmdif_state_next <= RD_DATA_RDY_FIRST_LONG;                     
+                end if;
+                
             when RD_DATA_RDY =>
                 if clk_enable='1' then                
-                    if (length='0' and bit_count(5 downto 3)="101") or (length='1' and bit_count(7 downto 3)="10000") then
-                        cmdif_state_next <= RD_END;
+                    if (length='0' and bit_count(5 downto 3)="100") or (length='1' and bit_count(7 downto 3)="01111") then
+                        cmdif_state_next <= RD_GET_CRC;
                     else
                         cmdif_state_next <= RD_SHIFT_DATA;
                     end if;
                 else
                     cmdif_state_next <= RD_DATA_RDY;                     
+                end if;
+                
+            when RD_CHECK_CRC =>
+                if clk_enable='1' then
+                    cmdif_state_next <= RD_END;
+                else
+                    cmdif_state_next <= RD_CHECK_CRC;
                 end if;
 
             when RD_END =>
@@ -364,6 +436,10 @@ begin
                         
     shift_serdata <=    sdc_cmd_io when cmdif_state = RD_DATA_RDY else 
                         sdc_cmd_io when cmdif_state = RD_SHIFT_DATA else 
+                        sdc_cmd_io when cmdif_state = RD_GET_CRC else
+                        sdc_cmd_io when cmdif_state = RD_CHECK_CRC else
+                        sdc_cmd_io when cmdif_state = RD_DATA_RDY_FIRST_LONG else
+                        sdc_cmd_io when cmdif_state = RD_SHIFT_DATA_FIRST_LONG else
                         sdc_cmd_io when cmdif_state = RD_START else 
                         '1';
                         
@@ -378,12 +454,10 @@ begin
                         'Z';
                         
     rx_data_rdy <=      '1' when cmdif_state = RD_DATA_RDY else
+                        '1' when cmdif_state = RD_DATA_RDY_FIRST_LONG else
                         '0';
                         
-    crc_data <=         shift_data when cmdif_state = RD_END else
-                        shift_data when cmdif_state = RD_DATA_RDY else
-                        shift_data when cmdif_state = RD_SHIFT_DATA else
-                        shift_data when cmdif_state = RD_START else
+    crc_data <=         shift_data when cmdif_state = RD_DATA_RDY else
                         tx_dout;
                         
     crc_clear <=        '1' when cmdif_state = IDLE else
@@ -392,8 +466,6 @@ begin
                         '0';
                         
     crc_enable <=       clk_enable when cmdif_state = RD_DATA_RDY else
-                        clk_enable when cmdif_state = RD_SHIFT_DATA else
-                        clk_enable when cmdif_state = RD_START else
                         clk_enable when cmdif_state = WR_LOAD_DATA else
                         clk_enable when cmdif_state = WR_START else
                         '0';

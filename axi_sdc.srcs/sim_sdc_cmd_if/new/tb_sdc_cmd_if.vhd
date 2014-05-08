@@ -61,7 +61,9 @@ architecture tb of tb_sdc_cmd_interface is
                transmit : in STD_LOGIC;
                length : in std_logic;
                start : in STD_LOGIC;
-               busy : out STD_LOGIC);
+               busy : out STD_LOGIC;
+               ignore_crc : in std_logic;
+               rx_crc_error : out std_logic);               
     end component;
 
     constant PERIOD : time := 10 ns;
@@ -90,8 +92,11 @@ architecture tb of tb_sdc_cmd_interface is
     signal length : std_logic := '0';
     signal start : std_logic := '0';
     signal busy : std_logic;
+    signal ignore_crc : std_logic;
+    signal rx_crc_error : std_logic;
     
-    signal ser_data : std_logic_vector(0 to 39) := x"31d2c3b4a5";
+    signal ser_data : std_logic_vector(0 to 47);
+    signal ser_data_long : std_logic_vector(0 to 135);
     signal par_data : std_logic_vector(7 downto 0);
     
     
@@ -126,7 +131,9 @@ begin
             transmit=> transmit,
             length => length,
             start => start,
-            busy => busy);
+            busy => busy,
+            ignore_crc => ignore_crc,
+            rx_crc_error => rx_crc_error);
 
        
     clockgen : process (clk100, sim_en)
@@ -156,6 +163,10 @@ begin
         length <= '0';
         tx_din <= X"FF";
         sdc_cmd_io <= 'H';
+        ignore_crc <= '0';
+        ser_data <= x"31d2c3b4a542";
+        ser_data_long <= X"0000000000000000000000000000000000";
+        
         
         wait for 10*PERIOD;
         
@@ -190,7 +201,7 @@ begin
         end loop;
   
   
-        for i in 0 to 39 loop
+        for i in 0 to 47 loop
             sdc_cmd_io <= ser_data(i);
             wait until rising_edge(clk100) and sdc_clk_fedge='1';
         end loop;
@@ -210,6 +221,100 @@ begin
         rx_rd_en <= '0';
         
         wait for 5*PERIOD;
+        ser_data <= x"31d2c3b4a532";
+
+        wait until rising_edge(clk100);
+        transmit <= '0';
+        length <= '0';
+        start <= '1';
+        
+        for i in 0 to 4 loop
+            wait until rising_edge(clk100) and sdc_clk_fedge='1';
+        end loop;
+  
+  
+        for i in 0 to 47 loop
+            sdc_cmd_io <= ser_data(i);
+            wait until rising_edge(clk100) and sdc_clk_fedge='1';
+        end loop;
+        
+        sdc_cmd_io <= 'H';
+        
+        wait until busy = '0';
+        start <= '0';
+        
+        wait until rising_edge(clk100);
+        
+        for i in 0 to 5 loop
+            rx_rd_en <= '1';
+            wait until rising_edge(clk100);
+            par_data <= rx_dout;
+        end loop;
+        rx_rd_en <= '0';
+        
+        
+        ser_data_long <= X"3F00112233445566778899AABBCCDDEE90";
+
+        wait until rising_edge(clk100);
+        transmit <= '0';
+        length <= '1';
+        start <= '1';
+        
+        for i in 0 to 4 loop
+            wait until rising_edge(clk100) and sdc_clk_fedge='1';
+        end loop;
+  
+  
+        for i in 0 to 135 loop
+            sdc_cmd_io <= ser_data_long(i);
+            wait until rising_edge(clk100) and sdc_clk_fedge='1';
+        end loop;
+        
+        sdc_cmd_io <= 'H';
+        
+        wait until busy = '0';
+        start <= '0';
+        
+        wait until rising_edge(clk100);
+        
+        for i in 0 to 16 loop
+            rx_rd_en <= '1';
+            wait until rising_edge(clk100);
+            par_data <= rx_dout;
+        end loop;
+        rx_rd_en <= '0';
+
+
+        ser_data_long <= X"3F00112233445566778399AABBCCDDEE90";
+
+        wait until rising_edge(clk100);
+        transmit <= '0';
+        length <= '1';
+        start <= '1';
+        
+        for i in 0 to 4 loop
+            wait until rising_edge(clk100) and sdc_clk_fedge='1';
+        end loop;
+  
+  
+        for i in 0 to 135 loop
+            sdc_cmd_io <= ser_data_long(i);
+            wait until rising_edge(clk100) and sdc_clk_fedge='1';
+        end loop;
+        
+        sdc_cmd_io <= 'H';
+        
+        wait until busy = '0';
+        start <= '0';
+        
+        wait until rising_edge(clk100);
+        
+        for i in 0 to 16 loop
+            rx_rd_en <= '1';
+            wait until rising_edge(clk100);
+            par_data <= rx_dout;
+        end loop;
+        rx_rd_en <= '0';
         
         
         Enable <= '0';
