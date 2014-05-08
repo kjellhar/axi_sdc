@@ -127,13 +127,14 @@ architecture rtl of sdc_top is
     end component;
 
     
-
+    -- Signals related to clock enable for the SDC clock
     signal Frequency : std_logic_vector(1 downto 0);
     signal sdc_clk_level : std_logic;
     signal sdc_clk_redge : std_logic;
     signal sdc_clk_fedge : std_logic;    
-
     signal sdc_clk_enable : std_logic;
+
+    -- Command interface signals
     signal cmd_tx_din : std_logic_vector(7 downto 0);
     signal cmd_tx_wr_en : std_logic;
     signal cmd_tx_full : std_logic;

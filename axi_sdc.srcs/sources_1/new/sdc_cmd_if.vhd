@@ -21,9 +21,9 @@
 --   pull start <= '1'
 --   The SDC clock must be running. The data is shifted out on the falling edge.
 --   The busy line will og high when the transaction starts.
+--   The start signal must be pulled low immediately when the busy signal goes high.
 --   The clock must toggle, and transmit must be held during the entire transaction.
---   When the busy line goes low, the transaction is ended and start must immediately
---   be pulled low.
+--   When the busy line goes low, the transaction is finished
 --
 --  Read transactions can be 48 bits or 136 bits long. This is selected with the
 --   length signal.
@@ -35,9 +35,9 @@
 --   pull start <= '1'
 --   The SDC clock must be running. The data is sampled on the rising edge.
 --   The busy line will go high when the transaction starts.
+--   The start signal must be pulled low immediately when the busy signal goes high.
 --   The transmit and length signals must be held during the entire transaction.
---   When the busy line goes low, the transaction has ended and start must immediately
---   be pulled low.
+--   When the busy line goes low, the transaction has ended.
 --   The data can then be fetched from the RX_FIFO. This may also be done during the
 --   transaction by monitoring the rx_emtpy signal.
 --   The CRC byte (including the stopbit) is not pushed to the FIFO.
@@ -115,6 +115,7 @@ architecture rtl of sdc_cmd_if is
             c : out std_logic_vector(  6 downto 0)); 
     end component;    
     
+    signal busy_reg : std_logic := '0';
     
     signal rx_din : std_logic_vector(7 downto 0);
     signal tx_dout : std_logic_vector(7 downto 0);
@@ -144,7 +145,7 @@ architecture rtl of sdc_cmd_if is
     signal crc_clear : std_logic;
     signal crc_enable : std_logic;
     signal load_crc : std_logic;
-    signal crc_error_i : std_logic := '0';
+    signal crc_error_reg : std_logic := '0';
     
     
     type cmdif_state_t is (
@@ -169,9 +170,13 @@ architecture rtl of sdc_cmd_if is
     
     
 begin
-
+    ----------------------------------------------------------------------
+    -- The clock enable is active on the positive edge when the module is
+    -- receiving data, and on the negative edge when transmitting.
     clk_enable <= sdc_clk_fedge when transmit='1' else sdc_clk_redge;
 
+    ----------------------------------------------------------------------
+    -- Byte oriented FIFOs
     u_rx_fifo : cmd_fifo
         PORT MAP (
             clk => clk100,
@@ -194,6 +199,9 @@ begin
             empty => tx_empty_i
         );
         
+    ----------------------------------------------------------------------
+    -- CRC7 circuit. uses byte sized input words and calculates the CRC7
+    -- using x^7+x^3+1
     u_crc7 : crc_8_10001001 
         port map (
             clk => clk100,
@@ -203,7 +211,8 @@ begin
             c => crc7
         ); 
                     
-        
+                    
+    ----------------------------------------------------------------------
     tx_full <= tx_full_i;
     tx_empty <= tx_empty_i;    
     rx_full <= rx_full_i;
@@ -213,6 +222,10 @@ begin
     tx_rd_en <= load_tx_data and clk_enable;
     rx_wr_en <= rx_data_rdy and clk_enable;
 
+
+    ----------------------------------------------------------------------
+    -- 8 bit shift register used for both transmit and receive.
+    -- Data is shifted in to bit 0 and out of bit 7. 
     shift_8 : process (clk100)
     begin
         if rising_edge(clk100) then
@@ -227,6 +240,9 @@ begin
     end process;
 
 
+    ----------------------------------------------------------------------
+    -- The bit counter is used by the state machine to keep track of the 
+    -- number of bits received or transmitted.
     bit_counter : process (clk100)
     begin
         if rising_edge(clk100) then
@@ -239,6 +255,45 @@ begin
     end process;
 
 
+    ----------------------------------------------------------------------
+    -- CRC error bit register
+    crc_error_register : process (clk100) 
+    begin
+        if rising_edge(clk100) then
+            if (cmdif_state = IDLE and start='1') or ignore_crc='1' then
+                crc_error_reg <= '0';        
+            elsif clk_enable='1' then
+                if cmdif_state = RD_CHECK_CRC then
+                    if crc7 = shift_data(7 downto 1) then
+                        crc_error_reg <= '0';
+                    else
+                        crc_error_reg <= '1';
+                    end if;
+                end if;
+            end if;
+        end if;
+    end process;
+
+    rx_crc_error <= crc_error_reg;
+
+
+    ----------------------------------------------------------------------
+    -- Busy signal register
+    busy_register : process (clk100)
+    begin
+        if rising_edge(clk100) then
+            if cmdif_state = IDLE then
+                busy_reg <= '0';
+            else
+                busy_reg <= '1';
+            end if; 
+        end if;
+    end process;
+
+    busy <= busy_reg;
+
+    ----------------------------------------------------------------------
+    -- State registers
     shift_state : process (clk100)
     begin
         if rising_edge(clk100) then
@@ -248,26 +303,11 @@ begin
         end if;
     end process;
     
-    crc_error_reg : process (clk100) 
-    begin
-        if rising_edge(clk100) then
-            if (cmdif_state = IDLE and start='1') or ignore_crc='1' then
-                crc_error_i <= '0';        
-            elsif clk_enable='1' then
-                if cmdif_state = RD_CHECK_CRC then
-                    if crc7 = shift_data(7 downto 1) then
-                        crc_error_i <= '0';
-                    else
-                        crc_error_i <= '1';
-                    end if;
-                end if;
-            end if;
-        end if;
-    end process;
+
     
-    rx_crc_error <= crc_error_i;
-    
-    
+    ----------------------------------------------------------------------
+    -- Comb. logic that determines the next state from the current state
+    -- and the inputs.
     shift_nextstate_logic : process (
                             cmdif_state, transmit, start, tx_empty_i, 
                             bit_count, clk_enable, sdc_cmd_io, length)
@@ -302,8 +342,7 @@ begin
                     else
                         cmdif_state_next <= WR_LOAD_CRC;                 
                     end if;
-                
-                
+                                
             when WR_SHIFT_DATA =>
                 if clk_enable='1' then
                     if bit_count(2 downto 0)="110" then
@@ -412,7 +451,10 @@ begin
         end case;
     end process;
 
+    ----------------------------------------------------------------------
     -- Shift state machine output logic
+    -- The outputs are calculated from the current state and the 
+    -- inputs.
     load_tx_data <=     '1' when cmdif_state = WR_START else
                         '1' when cmdif_state = WR_LOAD_DATA else
                         '0';
@@ -430,9 +472,6 @@ begin
     shift_enable <=     '0' when cmdif_state = RD_END else
                         '0' when cmdif_state = IDLE else 
                         '1';
-                        
-    busy <=             '0' when cmdif_state = IDLE else
-                        '1';     
                         
     shift_serdata <=    sdc_cmd_io when cmdif_state = RD_DATA_RDY else 
                         sdc_cmd_io when cmdif_state = RD_SHIFT_DATA else 

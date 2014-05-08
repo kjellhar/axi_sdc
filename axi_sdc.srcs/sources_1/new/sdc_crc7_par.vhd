@@ -22,6 +22,8 @@
 --    c width is always same as polynomial width.
 -------------------------------------------------------------------------*/
 
+-- The generated module has been modified - Kjell H A
+
 library ieee;
 use ieee.std_logic_1164.all;
 
