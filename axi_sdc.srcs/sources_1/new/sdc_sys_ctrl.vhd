@@ -38,6 +38,15 @@ end sdc_sys_ctrl;
 
 architecture rtl of sdc_sys_ctrl is
 
+    type sysctrl_state_t is (
+        IDLE,
+        GET_CMD,
+        CMD_NO_R,
+        CMD_R1,
+        CMD_R1B,
+        CMD_R2,
+        CMD_R3);
+
 begin
 
 
