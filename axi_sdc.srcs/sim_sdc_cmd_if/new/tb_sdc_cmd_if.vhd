@@ -188,8 +188,12 @@ begin
         transmit <= '1';
         start <= '1';
         
-        wait until busy = '0';
+        wait until busy = '1';
+        wait until rising_edge(clk100);
         start <= '0';
+
+        wait until busy = '0';
+        wait until rising_edge(clk100);
         
         wait until rising_edge(clk100);
         transmit <= '0';
@@ -202,6 +206,9 @@ begin
   
   
         for i in 0 to 47 loop
+            if busy='1' then 
+                start <= '0';
+            end if;
             sdc_cmd_io <= ser_data(i);
             wait until rising_edge(clk100) and sdc_clk_fedge='1';
         end loop;
@@ -234,6 +241,9 @@ begin
   
   
         for i in 0 to 47 loop
+            if busy='1' then 
+                start <= '0';
+            end if;
             sdc_cmd_io <= ser_data(i);
             wait until rising_edge(clk100) and sdc_clk_fedge='1';
         end loop;
@@ -266,6 +276,9 @@ begin
   
   
         for i in 0 to 135 loop
+            if busy='1' then 
+                start <= '0';
+            end if;
             sdc_cmd_io <= ser_data_long(i);
             wait until rising_edge(clk100) and sdc_clk_fedge='1';
         end loop;
@@ -298,6 +311,9 @@ begin
   
   
         for i in 0 to 135 loop
+            if busy='1' then 
+                start <= '0';
+            end if;            
             sdc_cmd_io <= ser_data_long(i);
             wait until rising_edge(clk100) and sdc_clk_fedge='1';
         end loop;
