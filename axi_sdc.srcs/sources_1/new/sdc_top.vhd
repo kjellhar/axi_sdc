@@ -121,7 +121,9 @@ architecture rtl of sdc_top is
         transmit : in STD_LOGIC;
         length : in std_logic;
         start : in STD_LOGIC;
-        busy : out STD_LOGIC);
+        busy : out STD_LOGIC;
+        ignore_crc : in std_logic;
+        rx_crc_error : out std_logic);
     end component;
 
     
@@ -144,6 +146,8 @@ architecture rtl of sdc_top is
     signal cmd_length : std_logic;
     signal cmd_start : std_logic;
     signal cmd_busy : std_logic;
+    signal cmd_rx_crc_error : std_logic;
+    signal cmd_ignore_crc : std_logic;
 
 begin
     u_sdc_clken_gen : sdc_clken_gen
@@ -180,6 +184,8 @@ begin
         transmit => cmd_transmit,
         length => cmd_length,
         start => cmd_start,
-        busy => cmd_busy);
+        busy => cmd_busy,
+        ignore_crc => cmd_ignore_crc,
+        rx_crc_error => cmd_rx_crc_error);
 
 end rtl;
