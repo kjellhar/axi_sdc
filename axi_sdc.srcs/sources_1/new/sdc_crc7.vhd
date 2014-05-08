@@ -46,7 +46,7 @@ end sdc_crc7;
 
 architecture rtl of sdc_crc7 is
 
-  signal lfsr: std_logic_vector (6 downto 0);	
+  signal lfsr: std_logic_vector (6 downto 0) := (others => '0');	
 begin	
     Crc7_out <= lfsr;
 

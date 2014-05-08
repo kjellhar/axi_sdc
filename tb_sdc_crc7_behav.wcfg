@@ -9,7 +9,7 @@
          </top_modules>
       </db_ref>
    </db_ref_list>
-   <WVObjectSize size="8" />
+   <WVObjectSize size="10" />
    <wvobject db_ref_id="1" type="logic" fp_name="/tb_sdc_crc7/Clk">
       <obj_property name="ElementShortName">Clk</obj_property>
       <obj_property name="ObjectShortName">Clk</obj_property>
@@ -33,11 +33,21 @@
    <wvobject db_ref_id="1" type="array" fp_name="/tb_sdc_crc7/Crc7_out">
       <obj_property name="ElementShortName">Crc7_out[6:0]</obj_property>
       <obj_property name="ObjectShortName">Crc7_out[6:0]</obj_property>
-      <obj_property name="Radix">BINARYRADIX</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject db_ref_id="1" type="array" fp_name="/tb_sdc_crc7/Crc7_out2">
+      <obj_property name="ElementShortName">Crc7_out2[6:0]</obj_property>
+      <obj_property name="ObjectShortName">Crc7_out2[6:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject db_ref_id="1" type="array" fp_name="/tb_sdc_crc7/pdata_in">
+      <obj_property name="ElementShortName">pdata_in[7:0]</obj_property>
+      <obj_property name="ObjectShortName">pdata_in[7:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
    </wvobject>
    <wvobject db_ref_id="1" type="array" fp_name="/tb_sdc_crc7/data_string">
-      <obj_property name="ElementShortName">data_string[47:0]</obj_property>
-      <obj_property name="ObjectShortName">data_string[47:0]</obj_property>
+      <obj_property name="ElementShortName">data_string[0:39]</obj_property>
+      <obj_property name="ObjectShortName">data_string[0:39]</obj_property>
    </wvobject>
    <wvobject db_ref_id="1" type="other" fp_name="/tb_sdc_crc7/PERIOD">
       <obj_property name="ElementShortName">PERIOD</obj_property>

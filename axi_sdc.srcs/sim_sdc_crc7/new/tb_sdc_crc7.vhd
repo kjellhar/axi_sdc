@@ -44,6 +44,14 @@ architecture tb of tb_sdc_crc7 is
     end component;
 
 
+    component crc_8_10001001 is 
+        port (
+            clk : in std_logic;
+            clear : in std_logic;
+            d : in std_logic_vector(  7 downto 0);
+            c : out std_logic_vector(  6 downto 0)); 
+    end component;
+
 
     constant PERIOD : time := 10 ns;
 
@@ -54,8 +62,11 @@ architecture tb of tb_sdc_crc7 is
     signal Clr : std_logic := '0';
     signal SData_in : std_logic := '0';
     signal Crc7_out : std_logic_vector (6 downto 0);
+    signal Crc7_out2 : std_logic_vector (6 downto 0);
+    signal pdata_in : std_logic_vector (7 downto 0) := (others => '0');
     
-    signal data_string : std_logic_vector (47 downto 0) := x"123456781234";
+    signal data_string : std_logic_vector (39 downto 0) := x"123456789a";
+    
 
     
 begin
@@ -68,7 +79,13 @@ begin
             SData_in => SData_in,
             Crc7_out => Crc7_out);
 
-
+    dut2 : crc_8_10001001 
+        port map (
+            clk => Clk,
+            clear => Clr,
+            d => pdata_in,
+            c => crc7_out2
+        ); 
 
     clockgen : process (Clk, sim_en)
     begin
@@ -91,7 +108,7 @@ begin
         Clr <= '0';
         Enable <= '1';
         
-        for i in data_string'high downto data_string'low loop
+        for i in 39 downto 0 loop
             SData_in <= data_string(i);
             wait until rising_edge(Clk);
         end loop;
@@ -99,6 +116,16 @@ begin
         
         wait for 5*period;
 
+        wait until rising_edge(Clk);
+        Clr <= '1';
+         wait until rising_edge(Clk);
+        Clr <= '0';
+        Enable <= '1';
+        
+        for i in 4 downto 0 loop
+            pdata_in <= data_string(8*i+7 downto 8*i);
+            wait until rising_edge(Clk);
+        end loop;
         
         sim_en <= '0';
     

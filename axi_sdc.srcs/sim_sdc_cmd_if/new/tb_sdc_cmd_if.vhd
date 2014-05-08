@@ -91,7 +91,7 @@ architecture tb of tb_sdc_cmd_interface is
     signal start : std_logic := '0';
     signal busy : std_logic;
     
-    signal ser_data : std_logic_vector(0 to 47) := x"31d2c3b4a596";
+    signal ser_data : std_logic_vector(0 to 39) := x"31d2c3b4a5";
     signal par_data : std_logic_vector(7 downto 0);
     
     
@@ -190,7 +190,7 @@ begin
         end loop;
   
   
-        for i in 0 to 47 loop
+        for i in 0 to 39 loop
             sdc_cmd_io <= ser_data(i);
             wait until rising_edge(clk100) and sdc_clk_fedge='1';
         end loop;
