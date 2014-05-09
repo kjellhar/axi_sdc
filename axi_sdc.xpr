@@ -12,7 +12,7 @@
     <Option Name="TargetLanguage" Val="VHDL"/>
     <Option Name="BoardPart" Val=""/>
     <Option Name="SourceMgmtMode" Val="DisplayOnly"/>
-    <Option Name="ActiveSimSet" Val="sim_sdc_cmd_if"/>
+    <Option Name="ActiveSimSet" Val="sim_sdc_top"/>
     <Option Name="DefaultLib" Val="xil_defaultlib"/>
   </Configuration>
   <FileSets Version="1" Minor="31">
@@ -86,7 +86,6 @@
         <Option Name="TopModule" Val="tb_sdc_clken_gen"/>
         <Option Name="TopLib" Val="xil_defaultlib"/>
         <Option Name="TopAutoSet" Val="TRUE"/>
-        <Option Name="SimMode" Val="post-implementation"/>
         <Option Name="SrcSet" Val="sources_1"/>
       </Config>
     </FileSet>
@@ -159,6 +158,20 @@
       <Config>
         <Option Name="DesignMode" Val="RTL"/>
         <Option Name="TopModule" Val="tb_sdc_cmd_interface"/>
+        <Option Name="TopLib" Val="xil_defaultlib"/>
+        <Option Name="SrcSet" Val="sources_1"/>
+      </Config>
+    </FileSet>
+    <FileSet Name="sim_sdc_top" Type="SimulationSrcs" RelSrcDir="$PSRCDIR/sim_sdc_top">
+      <File Path="$PSRCDIR/sim_sdc_top/new/tb_sdc_top_1.vhd">
+        <FileInfo>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
+      <Config>
+        <Option Name="DesignMode" Val="RTL"/>
+        <Option Name="TopModule" Val="tb_sdc_top"/>
         <Option Name="TopLib" Val="xil_defaultlib"/>
         <Option Name="SrcSet" Val="sources_1"/>
       </Config>

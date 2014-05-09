@@ -50,6 +50,7 @@ use work.sdc_defines_pkg.all;
 entity sdc_clken_gen is
     Port ( Clk100 : in std_logic;
            Enable : in std_logic;
+           sdc_clockgen_en : in std_logic;
            Frequency : in std_logic_vector (1 downto 0);
            sdc_clk_level : out std_logic;
            sdc_clk_redge : out std_logic;
@@ -64,7 +65,7 @@ begin
 
     clockdiv_counter : process (Clk100)
         variable counter : integer range 0 to 127 := 0;
-        variable clk_level : std_logic := '0';
+        variable clk_level : std_logic := '1';
 
     begin
         if rising_edge(Clk100) then
@@ -75,9 +76,15 @@ begin
                         sdc_clk_fedge <= '0';
                         clk_level := '1';
                     else
-                        sdc_clk_redge <= '0';
-                        sdc_clk_fedge <= '1';
-                        clk_level := '0';
+                        if sdc_clockgen_en='1' then
+                            sdc_clk_redge <= '0';
+                            sdc_clk_fedge <= '1';
+                            clk_level := '0';
+                        else
+                            sdc_clk_redge <= '0';
+                            sdc_clk_fedge <= '0';
+                            clk_level := '1';
+                        end if;                           
                     end if;
 
                     case Frequency is

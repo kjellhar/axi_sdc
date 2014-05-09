@@ -38,6 +38,7 @@ architecture tb of tb_sdc_clken_gen is
     component sdc_clken_gen is
         Port ( Clk100 : in STD_LOGIC;
                Enable : in STD_LOGIC;
+               sdc_clockgen_en : in std_logic;
                Frequency : in STD_LOGIC_VECTOR (1 downto 0);
                sdc_clk_level : out STD_LOGIC;
                sdc_clk_redge : out STD_LOGIC;
@@ -55,6 +56,7 @@ architecture tb of tb_sdc_clken_gen is
     signal sdc_clk_level : std_logic;
     signal sdc_clk_redge : std_logic;
     signal sdc_clk_fedge : std_logic;
+    signal sdc_clockgen_en : std_logic := '0';
     
 begin
 
@@ -63,6 +65,7 @@ begin
         port map ( 
             Clk100 => Clk100,
             Enable  => Enable,
+            sdc_clockgen_en => sdc_clockgen_en,
             Frequency => Frequency,
             sdc_clk_level => sdc_clk_level, 
             sdc_clk_redge => sdc_clk_redge, 
@@ -81,10 +84,22 @@ begin
     begin
         sim_en <= '1';
         wait for 10*PERIOD;
+       
         
         Frequency <= "10";
         Enable <= '1';
         wait for 10*period;
+       
+        sdc_clockgen_en <= '1';
+        
+        wait for 10.6*period;
+        
+        sdc_clockgen_en <= '0';
+      
+        
+        wait for 5*period;
+      
+        sdc_clockgen_en <= '1';
         
         Frequency <= "01";
         Enable <= '1';

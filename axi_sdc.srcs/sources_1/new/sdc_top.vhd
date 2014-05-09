@@ -24,7 +24,10 @@
 --      reg_response0-3     : Response to commands. For short response, only 
 --                              g_response0 is used.
 --      reg_control         : Controls the behaviour of the SDC controller
---                              [31:0] Reserved
+--                              [1:0] : Frequency
+--                                      00 - 400kHz
+--                                      01 - 25MHz
+--                                      10 - 50MHz
 --      reg_timeout         : Timeout value in ms
 --      reg_event           : Indicates the slource of a flagged event
 --                              [0]  : Command completed successfully
@@ -94,19 +97,20 @@ entity sdc_top is
         reg_response1_w : out std_logic;
         reg_response2_w : out std_logic;
         reg_response3_w : out std_logic;
-        reg_event_w     : out std_logic_vector (31 downto 0);
+        reg_event_w     : out std_logic;
         
         -- Other internal control signals
         interrupt : out std_logic;
-        command_wr : in std_logic
+        transaction_start : in std_logic;
+        sdc_busy : out std_logic
     );
-
 end sdc_top;
 
 architecture rtl of sdc_top is
     component sdc_clken_gen is
     Port ( Clk100 : in std_logic;
            Enable : in std_logic;
+           sdc_clockgen_en : in std_logic;
            Frequency : in std_logic_vector (1 downto 0);
            sdc_clk_level : out std_logic;
            sdc_clk_redge : out std_logic;
@@ -119,6 +123,28 @@ architecture rtl of sdc_top is
            enable : in STD_LOGIC;
            sdc_clk : out STD_LOGIC);
     end component;    
+
+    component sdc_sys_ctrl is
+        Port ( clk100 : in STD_LOGIC;
+               enable : in STD_LOGIC;
+               sdc_clockgen_en : out std_logic;
+               sdc_clk_enable : in std_logic;
+               transaction_start : in std_logic;
+               sdc_busy : out std_logic;
+               
+               cmd_start : out std_logic;
+               cmd_busy : in std_logic;
+               cmd_rlength : out std_logic;
+               cmd_transmit : out std_logic;
+               cmd_ignore_crc : out std_logic;
+               cmd_crc_error : in std_logic;
+
+               command : in std_logic_vector(5 downto 0);
+               cmd_argument : in std_logic_vector (31 downto 0);          
+               tx_fifo_data : out std_logic_vector (7 downto 0);
+               tx_fifo_wr_en : out std_logic
+               );
+    end component;
     
     component sdc_cmd_if is
     Port ( clk100 : in STD_LOGIC;
@@ -145,10 +171,11 @@ architecture rtl of sdc_top is
     
     -- Signals related to clock enable for the SDC clock
     signal Frequency : std_logic_vector(1 downto 0);
+    signal sdc_clockgen_en : std_logic;
+    
     signal sdc_clk_level : std_logic;
     signal sdc_clk_redge : std_logic;
     signal sdc_clk_fedge : std_logic;    
-    signal sdc_clk_enable : std_logic;
 
     -- Command interface signals
     signal cmd_tx_din : std_logic_vector(7 downto 0);
@@ -167,10 +194,15 @@ architecture rtl of sdc_top is
     signal cmd_ignore_crc : std_logic;
 
 begin
+    frequency <= reg_control(1 downto 0);
+
+
+
     u_sdc_clken_gen : sdc_clken_gen
     port map ( 
         Clk100 => Clk100,
         Enable  => Enable,
+        sdc_clockgen_en => sdc_clockgen_en,
         Frequency => Frequency,
         sdc_clk_level => sdc_clk_level, 
         sdc_clk_redge => sdc_clk_redge, 
@@ -180,8 +212,31 @@ begin
     port map (
         clk100 => clk100,
         sdc_clk_level => sdc_clk_level,
-        enable => sdc_clk_enable,
+        enable => enable,
         sdc_clk => SDC_CLK);
+
+    u_sdc_sys_ctrl : sdc_sys_ctrl
+    port map ( 
+        clk100 => clk100,
+        enable => enable,
+        sdc_clockgen_en => sdc_clockgen_en,
+        sdc_clk_enable => sdc_clk_redge,
+        transaction_start => transaction_start,
+        sdc_busy => sdc_busy,
+        
+        cmd_start => cmd_start,
+        cmd_busy => cmd_busy,
+        cmd_rlength => cmd_length,
+        cmd_transmit => cmd_transmit,
+        cmd_ignore_crc => cmd_ignore_crc,
+        cmd_crc_error => cmd_rx_crc_error,
+        
+        command => reg_command (5 downto 0),
+        cmd_argument => reg_argument,
+        tx_fifo_data => cmd_tx_din,
+        tx_fifo_wr_en => cmd_tx_wr_en
+        );
+
 
     u_sdc_cmd_if : sdc_cmd_if 
     port map  ( 

@@ -147,6 +147,10 @@ architecture rtl of sdc_cmd_if is
     signal load_crc : std_logic;
     signal crc_error_reg : std_logic := '0';
     
+    signal transmit_reg : std_logic := '0';
+    signal ignore_crc_reg : std_logic := '0';
+    signal length_reg : std_logic := '0';
+    
     
     type cmdif_state_t is (
         IDLE,
@@ -173,7 +177,7 @@ begin
     ----------------------------------------------------------------------
     -- The clock enable is active on the positive edge when the module is
     -- receiving data, and on the negative edge when transmitting.
-    clk_enable <= sdc_clk_fedge when transmit='1' else sdc_clk_redge;
+    clk_enable <= sdc_clk_fedge when transmit_reg='1' else sdc_clk_redge;
 
     ----------------------------------------------------------------------
     -- Byte oriented FIFOs
@@ -260,7 +264,7 @@ begin
     crc_error_register : process (clk100) 
     begin
         if rising_edge(clk100) then
-            if (cmdif_state = IDLE and start='1') or ignore_crc='1' then
+            if (cmdif_state = IDLE and start='1') or ignore_crc_reg='1' then
                 crc_error_reg <= '0';        
             elsif clk_enable='1' then
                 if cmdif_state = RD_CHECK_CRC then
@@ -276,7 +280,24 @@ begin
 
     rx_crc_error <= crc_error_reg;
 
-
+    ----------------------------------------------------------------------
+    -- input signal registers
+    -- All input control signals are sampled at the beginning of the 
+    -- transaction
+    input_reg : process (clk100)
+    begin
+        if rising_edge(clk100) then
+            if enable='1' then
+                if cmdif_state=IDLE and start='1' then
+                    transmit_reg <= transmit;
+                    length_reg <= length;
+                    ignore_crc_reg <= ignore_crc;
+                end if;
+            end if;
+        end if;
+    end process;
+    
+    
     ----------------------------------------------------------------------
     -- Busy signal register
     busy_register : process (clk100)
@@ -309,8 +330,8 @@ begin
     -- Comb. logic that determines the next state from the current state
     -- and the inputs.
     shift_nextstate_logic : process (
-                            cmdif_state, transmit, start, tx_empty_i, 
-                            bit_count, clk_enable, sdc_cmd_io, length)
+                            cmdif_state, transmit_reg, start, tx_empty_i, 
+                            bit_count, clk_enable, sdc_cmd_io, length_reg)
     begin
         case cmdif_state is
             when IDLE =>
@@ -374,7 +395,7 @@ begin
 
             when RD_START =>
                 if sdc_cmd_io='0' and clk_enable='1' then
-                    if length='1' then
+                    if length_reg='1' then
                         cmdif_State_next <= RD_SHIFT_DATA_FIRST_LONG;
                     else
                         cmdif_state_next <= RD_SHIFT_DATA;
@@ -426,7 +447,7 @@ begin
                 
             when RD_DATA_RDY =>
                 if clk_enable='1' then                
-                    if (length='0' and bit_count(5 downto 3)="100") or (length='1' and bit_count(7 downto 3)="01111") then
+                    if (length_reg='0' and bit_count(5 downto 3)="100") or (length_reg='1' and bit_count(7 downto 3)="01111") then
                         cmdif_state_next <= RD_GET_CRC;
                     else
                         cmdif_state_next <= RD_SHIFT_DATA;
