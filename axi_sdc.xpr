@@ -60,6 +60,22 @@
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
       </File>
+      <File Path="$PSRCDIR/sources_1/imports/hdl/sdc_axi4_S00_AXI_cmdif.vhd">
+        <FileInfo>
+          <Attr Name="ImportPath" Val="$PSRCDIR/sources_1/new/sdc_axi4_S00_AXI_cmdif.vhd"/>
+          <Attr Name="ImportTime" Val="1400099855"/>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
+      <File Path="$PSRCDIR/sources_1/imports/hdl/sdc_axi4.vhd">
+        <FileInfo>
+          <Attr Name="ImportPath" Val="$PSRCDIR/sources_1/new/sdc_axi4.vhd"/>
+          <Attr Name="ImportTime" Val="1400099789"/>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
       <Config>
         <Option Name="DesignMode" Val="RTL"/>
         <Option Name="TopModule" Val="sdc_top"/>
@@ -163,6 +179,7 @@
       </Config>
     </FileSet>
     <FileSet Name="sim_sdc_top" Type="SimulationSrcs" RelSrcDir="$PSRCDIR/sim_sdc_top">
+      <Filter Type="Srcs"/>
       <File Path="$PSRCDIR/sim_sdc_top/new/tb_sdc_top_1.vhd">
         <FileInfo>
           <Attr Name="UsedIn" Val="synthesis"/>
