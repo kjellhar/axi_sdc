@@ -15,7 +15,7 @@ entity sdc_axi4 is
 
 		-- Parameters of Axi Slave Bus Interface S00_AXI
 		C_S00_AXI_DATA_WIDTH	: integer	:= 32;
-		C_S00_AXI_ADDR_WIDTH	: integer	:= AXI_ADR_WIDTH+2
+		C_S00_AXI_ADDR_WIDTH	: integer	:= 6
 	);
 	port (
 		-- Users to add ports here
@@ -62,7 +62,7 @@ architecture arch_imp of sdc_axi4 is
 	component sdc_axi4_v1_0_S00_AXI_cmdif is
 		generic (
 		C_S_AXI_DATA_WIDTH	: integer	:= 32;
-		C_S_AXI_ADDR_WIDTH	: integer	:= AXI_ADR_WIDTH+2
+		C_S_AXI_ADDR_WIDTH	: integer	:= 6
 		);
 		port (
         Clk100 : in std_logic;

@@ -14,7 +14,7 @@ entity sdc_axi4_v1_0_S00_AXI_cmdif is
 		-- Width of S_AXI data bus
 		C_S_AXI_DATA_WIDTH	: integer	:= 32;
 		-- Width of S_AXI address bus
-		C_S_AXI_ADDR_WIDTH	: integer	:= AXI_ADR_WIDTH+2
+		C_S_AXI_ADDR_WIDTH	: integer	:= 6
 	);
 	port (
 		-- Users to add ports here
@@ -125,7 +125,7 @@ architecture arch_imp of sdc_axi4_v1_0_S00_AXI_cmdif is
 	-- ADDR_LSB = 2 for 32 bits (n downto 2)
 	-- ADDR_LSB = 3 for 64 bits (n downto 3)
 	constant ADDR_LSB  : integer := (C_S_AXI_DATA_WIDTH/32)+ 1;
-	constant OPT_MEM_ADDR_BITS : integer := AXI_ADR_WIDTH-1;
+	constant OPT_MEM_ADDR_BITS : integer := 3;
 	------------------------------------------------
 	---- Signals for user logic register space example
 	--------------------------------------------------
