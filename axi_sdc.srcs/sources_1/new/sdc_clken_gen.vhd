@@ -40,7 +40,7 @@ use work.sdc_defines_pkg.all;
 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
---use IEEE.NUMERIC_STD.ALL;
+use IEEE.NUMERIC_STD.ALL;
 
 -- Uncomment the following library declaration if instantiating
 -- any Xilinx leaf cells in this code.
@@ -51,7 +51,7 @@ entity sdc_clken_gen is
     Port ( Clk100 : in std_logic;
            Enable : in std_logic;
            sdc_clockgen_en : in std_logic;
-           Frequency : in std_logic_vector (1 downto 0);
+           Frequency : in std_logic_vector (7 downto 0);
            sdc_clk_level : out std_logic;
            sdc_clk_redge : out std_logic;
            sdc_clk_fedge : out std_logic);
@@ -85,14 +85,8 @@ begin
                             sdc_clk_fedge <= '0';
                             clk_level := '1';
                         end if;                           
-                    end if;
-
-                    case Frequency is
-                        when F400K => counter := F400K_DIV-1;
-                        when F25M => counter := F25M_DIV-1;
-                        when F50M => counter := F50M_DIV-1;
-                        when others => counter := F400K_DIV-1;
-                    end case;
+                    end if;                  
+                    counter := TO_INTEGER(unsigned(frequency));
                 else
                     sdc_clk_redge <= '0';
                     sdc_clk_fedge <= '0';

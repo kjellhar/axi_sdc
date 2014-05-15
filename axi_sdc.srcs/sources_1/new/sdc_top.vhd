@@ -81,28 +81,22 @@ entity sdc_top is
         SDC_DAT : inout std_logic_vector (3 downto 0);
         
         -- Internal register interfaces
-        reg_argument : in std_logic_vector (31 downto 0);
-        reg_command : in std_logic_vector (31 downto 0);
-        reg_response0 : out std_logic_vector (31 downto 0);
-        reg_response1 : out std_logic_vector (31 downto 0);
-        reg_response2 : out std_logic_vector (31 downto 0);
-        reg_response3 : out std_logic_vector (31 downto 0);
-        reg_control : in std_logic_vector (31 downto 0);
-        reg_timeout : in std_logic_vector (31 downto 0);
+        i_ctrl1 : in std_logic_vector (31 downto 0);
+        i_ctrl2 : in std_logic_vector (31 downto 0);
+        i_carg : in std_logic_vector (31 downto 0);
+        i_cmd : in std_logic_vector (31 downto 0);
+        reg_resp0 : out std_logic_vector (31 downto 0);
+        reg_resp1 : out std_logic_vector (31 downto 0);
+        reg_resp2 : out std_logic_vector (31 downto 0);
+        reg_resp3 : out std_logic_vector (31 downto 0);
         reg_event : out std_logic_vector (31 downto 0);
-        reg_event_enable : in std_logic_vector (31 downto 0);
         
         -- Register write enable signals
-        reg_response0_w : out std_logic;
-        reg_response1_w : out std_logic;
-        reg_response2_w : out std_logic;
-        reg_response3_w : out std_logic;
-        reg_event_w     : out std_logic;
-        
-        -- Other internal control signals
-        interrupt : out std_logic;
-        transaction_start : in std_logic;
-        sdc_busy : out std_logic
+        cmd_wr : in std_logic;
+        resp_wr : out std_logic;
+        event_wr : out std_logic;
+        resp_wr_ack : in std_logic;
+        event_wr_ack : in std_logic
     );
 end sdc_top;
 
@@ -111,7 +105,7 @@ architecture rtl of sdc_top is
     Port ( Clk100 : in std_logic;
            Enable : in std_logic;
            sdc_clockgen_en : in std_logic;
-           Frequency : in std_logic_vector (1 downto 0);
+           Frequency : in std_logic_vector (7 downto 0);
            sdc_clk_level : out std_logic;
            sdc_clk_redge : out std_logic;
            sdc_clk_fedge : out std_logic);
@@ -168,9 +162,17 @@ architecture rtl of sdc_top is
         rx_crc_error : out std_logic);
     end component;
 
+
+    signal sdc_busy : std_logic;
+    signal transaction_start : std_logic;
+
+    signal reg_ctrl1 : std_logic_vector(31 downto 0) := (others => '0');
+    signal reg_ctrl2 : std_logic_vector(31 downto 0) := X"0000007F";
+    signal reg_carg : std_logic_vector(31 downto 0) := (others => '0');
+    signal reg_cmd : std_logic_vector(31 downto 0) := (others => '0');
     
     -- Signals related to clock enable for the SDC clock
-    signal Frequency : std_logic_vector(1 downto 0);
+    signal frequency : std_logic_vector(7 downto 0);
     signal sdc_clockgen_en : std_logic;
     
     signal sdc_clk_level : std_logic;
@@ -194,7 +196,7 @@ architecture rtl of sdc_top is
     signal cmd_ignore_crc : std_logic;
 
 begin
-    frequency <= reg_control(1 downto 0);
+    frequency <= reg_ctrl2(7 downto 0);
 
 
 
@@ -203,7 +205,7 @@ begin
         Clk100 => Clk100,
         Enable  => Enable,
         sdc_clockgen_en => sdc_clockgen_en,
-        Frequency => Frequency,
+        Frequency => frequency,
         sdc_clk_level => sdc_clk_level, 
         sdc_clk_redge => sdc_clk_redge, 
         sdc_clk_fedge => sdc_clk_fedge);
@@ -231,8 +233,8 @@ begin
         cmd_ignore_crc => cmd_ignore_crc,
         cmd_crc_error => cmd_rx_crc_error,
         
-        command => reg_command (5 downto 0),
-        cmd_argument => reg_argument,
+        command => reg_cmd (5 downto 0),
+        cmd_argument => reg_carg,
         tx_fifo_data => cmd_tx_din,
         tx_fifo_wr_en => cmd_tx_wr_en
         );
@@ -259,5 +261,29 @@ begin
         busy => cmd_busy,
         ignore_crc => cmd_ignore_crc,
         rx_crc_error => cmd_rx_crc_error);
+
+
+    process (clk100)
+    begin
+        if rising_edge(clk100) then
+            if cmd_wr='1' then
+                reg_ctrl1 <= i_ctrl1;
+                reg_ctrl2 <= i_ctrl2;
+                reg_carg <= i_carg;
+                reg_cmd <= i_cmd;
+            end if;
+        end if;
+    end process;
+    
+    process (clk100)
+    begin
+        if rising_edge(clk100) then
+            if cmd_wr = '1' and sdc_busy = '0' then
+                transaction_start <= '1';
+            elsif sdc_busy = '1' then
+                transaction_start <= '0';
+            end if;
+        end if;
+    end process;
 
 end rtl;

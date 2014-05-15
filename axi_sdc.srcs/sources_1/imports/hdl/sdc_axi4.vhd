@@ -15,11 +15,18 @@ entity sdc_axi4 is
 
 		-- Parameters of Axi Slave Bus Interface S00_AXI
 		C_S00_AXI_DATA_WIDTH	: integer	:= 32;
-		C_S00_AXI_ADDR_WIDTH	: integer	:= AXI_ADR_WIDTH
+		C_S00_AXI_ADDR_WIDTH	: integer	:= AXI_ADR_WIDTH+2
 	);
 	port (
 		-- Users to add ports here
-
+        -- System signals
+        clk100 : in std_logic;      -- Must be 100MHz for the timing to be correct
+        intr : out std_logic;
+    
+        -- SD Card external interface
+        sdc_clk : out std_logic;
+        sdc_cmd : inout std_logic;
+        sdc_dat : inout std_logic_vector (3 downto 0);
 		-- User ports ends
 		-- Do not modify the ports beyond this line
 
@@ -55,9 +62,28 @@ architecture arch_imp of sdc_axi4 is
 	component sdc_axi4_v1_0_S00_AXI_cmdif is
 		generic (
 		C_S_AXI_DATA_WIDTH	: integer	:= 32;
-		C_S_AXI_ADDR_WIDTH	: integer	:= AXI_ADR_WIDTH
+		C_S_AXI_ADDR_WIDTH	: integer	:= AXI_ADR_WIDTH+2
 		);
 		port (
+        Clk100 : in std_logic;
+        intr : out std_logic;
+
+        i_ctrl1 : out std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0);
+        i_ctrl2 : out std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0);
+        i_carg : out std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0);
+        i_cmd : out std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0);
+        i_resp0 : in std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0);
+        i_resp1 : in std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0);
+        i_resp2 : in std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0);
+        i_resp3 : in std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0);
+        i_event : in std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0);
+
+        i_resp_wr : in std_logic;
+        i_event_wr : in std_logic;
+        i_resp_wr_ack : out std_logic;
+        i_event_wr_ack : out std_logic;
+        i_cmd_wr : out std_logic;		
+		
 		S_AXI_ACLK	: in std_logic;
 		S_AXI_ARESETN	: in std_logic;
 		S_AXI_AWADDR	: in std_logic_vector(C_S_AXI_ADDR_WIDTH-1 downto 0);
@@ -81,6 +107,55 @@ architecture arch_imp of sdc_axi4 is
 		S_AXI_RREADY	: in std_logic
 		);
 	end component sdc_axi4_v1_0_S00_AXI_cmdif;
+	
+    component sdc_top is
+        port (
+            -- System signals
+            Clk100 : in std_logic;      -- Must be 100MHz for the timing to be correct
+            Enable : in std_logic;      -- Enables the clock in the core module
+        
+            -- SD Card external interface
+            SDC_CLK : out std_logic;
+            SDC_CMD : inout std_logic;
+            SDC_DAT : inout std_logic_vector (3 downto 0);
+            
+            -- Internal register interfaces
+            i_ctrl1 : in std_logic_vector (31 downto 0);
+            i_ctrl2 : in std_logic_vector (31 downto 0);
+            i_carg : in std_logic_vector (31 downto 0);
+            i_cmd : in std_logic_vector (31 downto 0);
+            reg_resp0 : out std_logic_vector (31 downto 0);
+            reg_resp1 : out std_logic_vector (31 downto 0);
+            reg_resp2 : out std_logic_vector (31 downto 0);
+            reg_resp3 : out std_logic_vector (31 downto 0);
+            reg_event : out std_logic_vector (31 downto 0);
+            
+            -- Register write enable signals
+            cmd_wr : in std_logic;
+            resp_wr : out std_logic;
+            event_wr : out std_logic;
+            resp_wr_ack : in std_logic;
+            event_wr_ack : in std_logic
+        );
+    end component;	
+    
+    
+    signal reg_ctrl1 : std_logic_vector(31 downto 0);
+    signal reg_ctrl2 : std_logic_vector(31 downto 0);
+    signal reg_carg : std_logic_vector(31 downto 0);
+    signal reg_cmd : std_logic_vector(31 downto 0);
+    signal reg_resp0 : std_logic_vector(31 downto 0);
+    signal reg_resp1 : std_logic_vector(31 downto 0);
+    signal reg_resp2 : std_logic_vector(31 downto 0);
+    signal reg_resp3 : std_logic_vector(31 downto 0);
+    signal reg_emask : std_logic_vector(31 downto 0);
+    signal reg_event : std_logic_vector(31 downto 0);
+	
+	signal cmd_wr : std_logic;
+	signal resp_wr : std_logic;
+	signal event_wr : std_logic;
+	signal resp_wr_ack : std_logic;
+	signal event_wr_ack : std_logic;
 
 begin
 
@@ -91,6 +166,26 @@ sdc_axi4_v1_0_S00_AXI_cmdif_inst : sdc_axi4_v1_0_S00_AXI_cmdif
 		C_S_AXI_ADDR_WIDTH	=> C_S00_AXI_ADDR_WIDTH
 	)
 	port map (
+        Clk100 => Clk100,
+        intr => intr,
+  
+        i_ctrl1 => reg_ctrl1,
+        i_ctrl2 => reg_ctrl2,
+        i_carg => reg_carg,
+        i_cmd => reg_cmd,
+        i_resp0 => reg_resp0,
+        i_resp1 => reg_resp1,
+        i_resp2 => reg_resp2,
+        i_resp3 => reg_resp3,
+        i_event => reg_event,
+    
+        i_resp_wr => resp_wr,
+        i_event_wr => event_wr,
+        i_resp_wr_ack => resp_wr_ack,
+        i_event_wr_ack => event_wr_ack,
+        i_cmd_wr => cmd_wr,	
+	
+	
 		S_AXI_ACLK	=> s00_axi_aclk,
 		S_AXI_ARESETN	=> s00_axi_aresetn,
 		S_AXI_AWADDR	=> s00_axi_awaddr,
@@ -115,6 +210,35 @@ sdc_axi4_v1_0_S00_AXI_cmdif_inst : sdc_axi4_v1_0_S00_AXI_cmdif
 	);
 
 	-- Add user logic here
+    u_sdc : sdc_top
+        port map (
+            -- System signals
+            Clk100 => clk100,
+            Enable => '1',
+        
+            -- SD Card external interface
+            SDC_CLK => sdc_clk,
+            SDC_CMD => sdc_cmd,
+            SDC_DAT => sdc_dat,
+            
+            -- Internal register interfaces
+            i_ctrl1 => reg_ctrl1,
+            i_ctrl2 => reg_ctrl2,
+            i_carg => reg_carg,
+            i_cmd => reg_cmd,
+            reg_resp0 => reg_resp0,
+            reg_resp1 => reg_resp1,
+            reg_resp2 => reg_resp2,
+            reg_resp3 => reg_resp3,
+            reg_event => reg_event,
+            
+            -- Register write enable signals
+            cmd_wr => cmd_wr,
+            resp_wr => resp_wr,
+            event_wr => event_wr,
+            resp_wr_ack => resp_wr_ack,
+            event_wr_ack => event_wr_ack
+        );  
 
 	-- User logic ends
 

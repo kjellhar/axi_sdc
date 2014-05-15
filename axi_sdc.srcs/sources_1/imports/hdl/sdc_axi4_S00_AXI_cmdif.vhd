@@ -14,10 +14,30 @@ entity sdc_axi4_v1_0_S00_AXI_cmdif is
 		-- Width of S_AXI data bus
 		C_S_AXI_DATA_WIDTH	: integer	:= 32;
 		-- Width of S_AXI address bus
-		C_S_AXI_ADDR_WIDTH	: integer	:= AXI_ADR_WIDTH
+		C_S_AXI_ADDR_WIDTH	: integer	:= AXI_ADR_WIDTH+2
 	);
 	port (
 		-- Users to add ports here
+        Clk100 : in std_logic;      -- Must be 100MHz for the timing to be correct
+        intr : out std_logic;
+        
+        -- Non synchronised register signals. 
+	    i_ctrl1 : out std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0);
+        i_ctrl2 : out std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0);
+        i_carg : out std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0);
+        i_cmd : out std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0);
+        i_resp0 : in std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0);
+        i_resp1 : in std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0);
+        i_resp2 : in std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0);
+        i_resp3 : in std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0);
+        i_event : in std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0);
+
+        i_resp_wr : in std_logic;
+        i_event_wr : in std_logic;
+        i_resp_wr_ack : out std_logic;
+        i_event_wr_ack : out std_logic;
+        i_cmd_wr : out std_logic;
+
 
 		-- User ports ends
 		-- Do not modify the ports beyond this line
@@ -105,7 +125,7 @@ architecture arch_imp of sdc_axi4_v1_0_S00_AXI_cmdif is
 	-- ADDR_LSB = 2 for 32 bits (n downto 2)
 	-- ADDR_LSB = 3 for 64 bits (n downto 3)
 	constant ADDR_LSB  : integer := (C_S_AXI_DATA_WIDTH/32)+ 1;
-	constant OPT_MEM_ADDR_BITS : integer := C_S_AXI_ADDR_WIDTH-1;
+	constant OPT_MEM_ADDR_BITS : integer := AXI_ADR_WIDTH-1;
 	------------------------------------------------
 	---- Signals for user logic register space example
 	--------------------------------------------------
@@ -124,6 +144,19 @@ architecture arch_imp of sdc_axi4_v1_0_S00_AXI_cmdif is
 	signal slv_reg_wren	: std_logic;
 	signal reg_data_out	:std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0);
 	signal byte_index	: integer;
+	
+	signal cmd_wr : std_logic;
+	signal cmd_wr_sync : std_logic_vector(2 downto 0);
+    signal cmd_wr_ack : std_logic;
+    signal cmd_wr_ack_sync : std_logic_vector(1 downto 0);
+    
+    signal resp_wr_sync : std_logic_vector(2 downto 0);
+    signal resp_wr_ack_sync : std_logic_vector(1 downto 0);
+    signal event_wr_sync : std_logic_vector(2 downto 0);
+    signal event_wr_ack_sync : std_logic_vector(1 downto 0);
+	
+	signal resp_wr : std_logic;
+	signal event_wr : std_logic;
 
 begin
 	-- I/O Connections assignments
@@ -189,11 +222,13 @@ begin
 	    if S_AXI_ARESETN = '0' then
 	      axi_wready <= '0';
 	    else
-	      if (axi_wready = '0' and S_AXI_WVALID = '1' and S_AXI_AWVALID = '1') then
+	      if (axi_wready = '0' and S_AXI_WVALID = '1' and S_AXI_AWVALID = '1' and cmd_wr='0') then
 	          -- slave is ready to accept write data when 
 	          -- there is a valid write address and write data
-	          -- on the write address and data bus. This design 
-	          -- expects no outstanding transactions.           
+	          -- on the write address and data bus. 
+	          -- Also the wr_cmd signal must be low. The registers cannot
+	          -- change during sync to clk100 domain   
+	          
 	          axi_wready <= '1';
 	      else
 	        axi_wready <= '0';
@@ -217,7 +252,7 @@ begin
 	  if rising_edge(S_AXI_ACLK) then 
 	    if S_AXI_ARESETN = '0' then
 	      reg_ctrl1 <= (others => '0');
-	      reg_ctrl2 <= (others => '0');
+	      reg_ctrl2 <= X"0000007F";
 	      reg_carg <= (others => '0');
 	      reg_cmd <= (others => '0');
 	      reg_emask <= (others => '0');
@@ -225,47 +260,36 @@ begin
 	      loc_addr := axi_awaddr(ADDR_LSB + OPT_MEM_ADDR_BITS downto ADDR_LSB);
 	      if (slv_reg_wren = '1') then
 	        case loc_addr is
-	          when REG_CTRL1 =>
+	          when REG_CTRL1_A =>
 	            for byte_index in 0 to (C_S_AXI_DATA_WIDTH/8-1) loop
 	              if ( S_AXI_WSTRB(byte_index) = '1' ) then
-	                -- Respective byte enables are asserted as per write strobes                   
-	                -- slave registor 0
 	                reg_ctrl1(byte_index*8+7 downto byte_index*8) <= S_AXI_WDATA(byte_index*8+7 downto byte_index*8);
 	              end if;
 	            end loop;
-	          when REG_CTRL1 =>
+	          when REG_CTRL2_A =>
 	            for byte_index in 0 to (C_S_AXI_DATA_WIDTH/8-1) loop
 	              if ( S_AXI_WSTRB(byte_index) = '1' ) then
-	                -- Respective byte enables are asserted as per write strobes                   
-	                -- slave registor 1
 	                reg_ctrl2(byte_index*8+7 downto byte_index*8) <= S_AXI_WDATA(byte_index*8+7 downto byte_index*8);
 	              end if;
 	            end loop;
-	          when REG_CARG =>
+	          when REG_CARG_A =>
 	            for byte_index in 0 to (C_S_AXI_DATA_WIDTH/8-1) loop
 	              if ( S_AXI_WSTRB(byte_index) = '1' ) then
-	                -- Respective byte enables are asserted as per write strobes                   
-	                -- slave registor 2
 	                reg_carg(byte_index*8+7 downto byte_index*8) <= S_AXI_WDATA(byte_index*8+7 downto byte_index*8);
 	              end if;
 	            end loop;
-	          when REG_CMD =>
+	          when REG_CMD_A =>
 	            for byte_index in 0 to (C_S_AXI_DATA_WIDTH/8-1) loop
 	              if ( S_AXI_WSTRB(byte_index) = '1' ) then
-	                -- Respective byte enables are asserted as per write strobes                   
-	                -- slave registor 3
-	                slv_reg3(byte_index*8+7 downto byte_index*8) <= S_AXI_WDATA(byte_index*8+7 downto byte_index*8);
+	                reg_cmd(byte_index*8+7 downto byte_index*8) <= S_AXI_WDATA(byte_index*8+7 downto byte_index*8);
 	              end if;
 	            end loop;
-	          when REG_EMASK =>
+	          when REG_EMASK_A =>
                   for byte_index in 0 to (C_S_AXI_DATA_WIDTH/8-1) loop
                     if ( S_AXI_WSTRB(byte_index) = '1' ) then
-                      -- Respective byte enables are asserted as per write strobes                   
-                      -- slave registor 3
                       reg_emask(byte_index*8+7 downto byte_index*8) <= S_AXI_WDATA(byte_index*8+7 downto byte_index*8);
                     end if;
                   end loop;
-	            
 	          when others =>
 	            reg_ctrl1 <= reg_ctrl1;
 	            reg_ctrl2 <= reg_ctrl2;
@@ -342,7 +366,7 @@ begin
 	      axi_rvalid <= '0';
 	      axi_rresp  <= "00";
 	    else
-	      if (axi_arready = '1' and S_AXI_ARVALID = '1' and axi_rvalid = '0') then
+	      if (axi_arready = '1' and S_AXI_ARVALID = '1' and axi_rvalid = '0' and event_wr='0') then
 	        -- Valid read data is available at the read data bus
 	        axi_rvalid <= '1';
 	        axi_rresp  <= "00"; -- 'OKAY' response
@@ -359,7 +383,7 @@ begin
 	-- and the slave is ready to accept the read address.
 	slv_reg_rden <= axi_arready and S_AXI_ARVALID and (not axi_rvalid) ;
 
-	process (reg_ctrl1, reg_ctrl2, reg_carg, reg_cmd
+	process (reg_ctrl1, reg_ctrl2, reg_carg, reg_cmd,
 	         reg_resp0, reg_resp1, reg_resp2, reg_resp3,
 	         reg_event, reg_emask, 
 	         axi_araddr, S_AXI_ARESETN, slv_reg_rden)
@@ -371,25 +395,25 @@ begin
 	    -- Address decoding for reading registers
 	    loc_addr := axi_araddr(ADDR_LSB + OPT_MEM_ADDR_BITS downto ADDR_LSB);
 	    case loc_addr is
-	      when REG_CTRL1 =>
+	      when REG_CTRL1_A =>
 	        reg_data_out <= reg_ctrl1;
-	      when REG_CTRL2 =>
+	      when REG_CTRL2_A =>
 	        reg_data_out <= reg_ctrl2;
-	      when REG_CARG =>
+	      when REG_CARG_A =>
 	        reg_data_out <= reg_carg;
-	      when REG_CMD =>
+	      when REG_CMD_A =>
               reg_data_out <= reg_cmd;                                                                                                      
-	      when REG_RESP0 =>
+	      when REG_RESP0_A =>
 	        reg_data_out <= reg_resp0;
-	      when REG_RESP1 =>
+	      when REG_RESP1_A =>
             reg_data_out <= reg_resp1;
-	      when REG_RESP2 =>
+	      when REG_RESP2_A =>
             reg_data_out <= reg_resp2;
-	      when REG_RESP3 =>
+	      when REG_RESP3_A =>
             reg_data_out <= reg_resp3;
-	      when REG_EVENT =>
+	      when REG_EVENT_A =>
             reg_data_out <= reg_event;
-	      when REG_EMASK =>
+	      when REG_EMASK_A =>
             reg_data_out <= reg_emask;
 	      when others =>
 	        reg_data_out  <= (others => '0');
@@ -418,6 +442,129 @@ begin
 
 	-- Add user logic here
 
+    
+    -- Sync the Command write signal. This signal is used to clock all the registers over to the 
+    -- Clk100 domain. As long as the clk_wr signal is high, the AXI bus should not be 
+    -- write enabled
+	process (S_AXI_ACLK)
+	   variable loc_addr :std_logic_vector(OPT_MEM_ADDR_BITS downto 0); 
+	begin
+	  if rising_edge(S_AXI_ACLK) then 
+	    if S_AXI_ARESETN = '0' then
+	       cmd_wr <= '0';
+	    else
+	      loc_addr := axi_awaddr(ADDR_LSB + OPT_MEM_ADDR_BITS downto ADDR_LSB);
+	      if (slv_reg_wren = '1') then
+	        if loc_addr=REG_CMD_A then
+	           cmd_wr <= '1';
+	        elsif cmd_wr_ack='1' then
+	           cmd_wr <= '0';
+	        end if;
+	      end if;
+	    end if;
+	  end if;                   
+	end process;
+	
+	process (S_AXI_ACLK)
+    begin
+      if rising_edge(S_AXI_ACLK) then 
+        cmd_wr_ack_sync(cmd_wr_ack_sync'left downto 0) <= cmd_wr_ack_sync(cmd_wr_ack_sync'left-1 downto 0) & cmd_wr_sync(cmd_wr_sync'left); 
+      end if;                   
+    end process;	
+
+    cmd_wr_ack <= cmd_wr_ack_sync(cmd_wr_ack_sync'left);
+    
+    process (clk100)
+    begin
+        if rising_edge(clk100) then
+            cmd_wr_sync(cmd_wr_sync'left downto 0) <= cmd_wr_sync(cmd_wr_sync'left-1 downto 0) & cmd_wr;
+        end if;
+    end process;
+    i_cmd_wr <= cmd_wr_sync(cmd_wr_sync'left) and not cmd_wr_sync(cmd_wr_sync'left-1);
+    
+    
+    -- Connect the write enabled registers to the internal logic
+    i_ctrl1 <= reg_ctrl1;
+    i_ctrl2 <= reg_ctrl2;   
+    i_carg <= reg_carg;    
+    i_cmd <= reg_cmd;     
+ 
+ 
+ 
+    -- Sync of write signals from the clk100 domain (resp and event registers)
+	process (S_AXI_ACLK)
+    begin
+      if rising_edge(S_AXI_ACLK) then 
+        resp_wr_sync(resp_wr_sync'left downto 0) <= resp_wr_sync(resp_wr_sync'left-1 downto 0) & i_resp_wr;
+        event_wr_sync(event_wr_sync'left downto 0) <= event_wr_sync(event_wr_sync'left-1 downto 0) & i_event_wr; 
+      end if;                   
+    end process;   
+    
+    -- Detect the positive edge of the write signals
+    resp_wr <= resp_wr_sync(resp_wr_sync'left) and not resp_wr_sync(resp_wr_sync'left-1);
+    event_wr <= event_wr_sync(event_wr_sync'left) and not event_wr_sync(event_wr_sync'left);
+     
+    
+    process (clk100)
+    begin
+        if rising_edge(clk100) then
+            resp_wr_ack_sync(resp_wr_ack_sync'left downto 0) <= resp_wr_ack_sync(resp_wr_ack_sync'left-1 downto 0) & resp_wr_sync(resp_wr_sync'left);
+            event_wr_ack_sync(event_wr_ack_sync'left downto 0) <= event_wr_ack_sync(event_wr_ack_sync'left-1 downto 0) & event_wr_sync(event_wr_sync'left);
+        end if;
+    end process; 
+    
+    i_resp_wr_ack <= resp_wr_ack_sync(resp_wr_ack_sync'left);
+    i_event_wr_ack <= event_wr_ack_sync(event_wr_ack_sync'left);
+    
+    
+    -- Write to resp and event registers
+    process (S_AXI_ACLK)
+    begin
+        if rising_edge(S_AXI_ACLK) then 
+            if S_AXI_ARESETN = '0' then
+                reg_resp0 <= (others => '0');
+                reg_resp1 <= (others => '0');
+                reg_resp2 <= (others => '0');
+                reg_resp3 <= (others => '0');
+            else
+                if resp_wr='1' then
+                    reg_resp0 <= i_resp0;
+                    reg_resp1 <= i_resp1;
+                    reg_resp2 <= i_resp2;
+                    reg_resp3 <= i_resp3;
+                else
+                    reg_resp0 <= reg_resp0;
+                    reg_resp1 <= reg_resp1;
+                    reg_resp2 <= reg_resp2;
+                    reg_resp3 <= reg_resp3;
+                
+                end if;
+            end if;
+        end if;             
+    end process;
+    
+    -- Write to event and event registers
+    process (S_AXI_ACLK)
+        variable loc_addr :std_logic_vector(OPT_MEM_ADDR_BITS downto 0);
+    begin
+        if rising_edge(S_AXI_ACLK) then 
+            if S_AXI_ARESETN = '0' then
+                reg_event <= (others => '0');
+            else
+                loc_addr := axi_araddr(ADDR_LSB + OPT_MEM_ADDR_BITS downto ADDR_LSB);
+                if event_wr='1' then
+                    reg_event <= reg_event or i_event;
+                elsif (axi_rvalid = '1' and S_AXI_RREADY = '1' and loc_addr=REG_EVENT_A) then
+                    reg_event <= (others => '0');
+                else
+                    reg_event <= reg_event; 
+                end if;
+            end if;
+        end if;             
+    end process;    
+    
+    intr <= '0';
+    
 	-- User logic ends
 
 end arch_imp;
