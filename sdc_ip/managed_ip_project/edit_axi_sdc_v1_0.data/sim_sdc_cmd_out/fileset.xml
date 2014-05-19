@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DARoots Version="1" Minor="30">
+  <FileSet Name="sim_sdc_cmd_out" Type="SimulationSrcs" RelSrcDir="$PSRCDIR/sim_sdc_cmd_out">
+    <Filter Type="Srcs"/>
+    <File Path="$PSRCDIR/sources_1/new/cmd_if_out.vhd">
+      <FileInfo>
+        <Attr Name="UsedInSynthesis" Val="1"/>
+        <Attr Name="UsedInSimulation" Val="1"/>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="implementation"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
+    <File Path="$PSRCDIR/sim_sdc_cmd_out/new/tb_sdc_cmd_out.vhd">
+      <FileInfo>
+        <Attr Name="UsedInSynthesis" Val="1"/>
+        <Attr Name="UsedInSimulation" Val="1"/>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="implementation"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
+    <Config>
+      <Option Name="DesignMode" Val="RTL"/>
+      <Option Name="TopModule" Val="tb_sdc_crc7"/>
+      <Option Name="TopAutoSet" Val="TRUE"/>
+      <Option Name="SrcSet" Val=""/>
+    </Config>
+  </FileSet>
+</DARoots>
