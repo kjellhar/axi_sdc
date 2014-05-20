@@ -33,12 +33,16 @@ use IEEE.STD_LOGIC_1164.ALL;
 
 entity cmd_if_in is
     Port ( clk : in STD_LOGIC;
+           reset : in std_logic;
            enable : in STD_LOGIC;
            sdc_cmd_in : in STD_LOGIC;
            long_resp : in STD_LOGIC;
            start : in STD_LOGIC;
            done : out STD_LOGIC;
-           response : out STD_LOGIC_VECTOR (135 downto 0);
+           resp0_out : out STD_LOGIC_VECTOR (31 downto 0);
+           resp1_out : out STD_LOGIC_VECTOR (31 downto 0);
+           resp2_out : out STD_LOGIC_VECTOR (31 downto 0);
+           resp3_out : out STD_LOGIC_VECTOR (31 downto 0);
            crc_error : out STD_LOGIC);
 end cmd_if_in;
 
@@ -70,91 +74,104 @@ begin
     done <= '1' when state=CMD_DONE_S else '0';
     crc_error <= '1' when state=CMD_DONE_S and crc_reg /= cmd_reg(7 downto 1) else '0';
     
-    response <= cmd_reg;
+    resp0_out <= cmd_reg(39 downto 8) when long_resp_reg = '0' else
+                 cmd_reg(127 downto 96);
+    resp1_out <= (others => '0') when long_resp_reg = '0' else
+                 cmd_reg(95 downto 64);                
+    resp2_out <= (others => '0') when long_resp_reg = '0' else
+                 cmd_reg(63 downto 32);                
+    resp3_out <= (others => '0') when long_resp_reg = '0' else
+                 cmd_reg(31 downto 0);                
+                  
 
     process (clk)
     begin
         if rising_edge(clk) then
-            if enable='1' then
-                case state is
-                    when IDLE_S =>
-                        bit_counter <= 0;
-                        cmd_reg <= (others => '0');
-                        
-                        if start='1' then
-                            state <= WAIT_START_S;
-                            long_resp_reg <= long_resp;
-                        end if;
-                        
-                    when WAIT_START_S =>                       
-                        if sdc_cmd_in = '0' then
-                            bit_counter <= 1;
-                            cmd_reg(cmd_reg'left downto 0) <= cmd_reg(cmd_reg'left-1 downto 0) & sdc_cmd_in;
-                                                
-                            if long_resp = '0' then
-                                state <= CMD_SHORT_S;
-                            else
-                                state <= CMD_LONG_S;
+            if reset = '1' then
+                state <= IDLE_S;
+                bit_counter <= 0;
+                cmd_reg <= (others => '0');
+            else
+                if enable='1' then
+                    case state is
+                        when IDLE_S =>
+                            bit_counter <= 0;
+                            cmd_reg <= (others => '0');
+                            
+                            if start='1' then
+                                state <= WAIT_START_S;
+                                long_resp_reg <= long_resp;
                             end if;
-                        end if;
-                    
-                    when CMD_SHORT_S =>
-                        bit_counter <= bit_counter + 1;
-                        cmd_reg(cmd_reg'left downto 0) <= cmd_reg(cmd_reg'left-1 downto 0) & sdc_cmd_in;
+                            
+                        when WAIT_START_S =>                       
+                            if sdc_cmd_in = '0' then
+                                bit_counter <= 1;
+                                cmd_reg(cmd_reg'left downto 0) <= cmd_reg(cmd_reg'left-1 downto 0) & sdc_cmd_in;
+                                                    
+                                if long_resp = '0' then
+                                    state <= CMD_SHORT_S;
+                                else
+                                    state <= CMD_LONG_S;
+                                end if;
+                            end if;
                         
-                        if bit_counter=7 then
-                            state <= DATA_SHORT_S;
-                        end if;
-                        
-                    when DATA_SHORT_S =>
+                        when CMD_SHORT_S =>
                             bit_counter <= bit_counter + 1;
                             cmd_reg(cmd_reg'left downto 0) <= cmd_reg(cmd_reg'left-1 downto 0) & sdc_cmd_in;
                             
-                            if bit_counter=39 then
-                                state <= CRC_SHORT_S;
-                            end if;                                 
-                   
-                    when CRC_SHORT_S =>
+                            if bit_counter=7 then
+                                state <= DATA_SHORT_S;
+                            end if;
+                            
+                        when DATA_SHORT_S =>
+                                bit_counter <= bit_counter + 1;
+                                cmd_reg(cmd_reg'left downto 0) <= cmd_reg(cmd_reg'left-1 downto 0) & sdc_cmd_in;
+                                
+                                if bit_counter=39 then
+                                    state <= CRC_SHORT_S;
+                                end if;                                 
+                       
+                        when CRC_SHORT_S =>
+                                    bit_counter <= bit_counter + 1;
+                                    cmd_reg(cmd_reg'left downto 0) <= cmd_reg(cmd_reg'left-1 downto 0) & sdc_cmd_in;
+            
+                                    if bit_counter=46 then
+                                        state <= STOP_BIT_S;
+                                    end if;                   
+                        
+                        when CMD_LONG_S =>
+                            bit_counter <= bit_counter + 1;
+                            cmd_reg(cmd_reg'left downto 0) <= cmd_reg(cmd_reg'left-1 downto 0) & sdc_cmd_in;
+                            
+                            if bit_counter=7 then
+                                state <= DATA_LONG_S;
+                            end if;                        
+                        
+                        when DATA_LONG_S =>
+                            bit_counter <= bit_counter + 1;
+                            cmd_reg(cmd_reg'left downto 0) <= cmd_reg(cmd_reg'left-1 downto 0) & sdc_cmd_in;
+                            
+                            if bit_counter=127 then
+                                state <= CRC_LONG_S;
+                            end if;                        
+                         
+                        when CRC_LONG_S =>
                                 bit_counter <= bit_counter + 1;
                                 cmd_reg(cmd_reg'left downto 0) <= cmd_reg(cmd_reg'left-1 downto 0) & sdc_cmd_in;
         
-                                if bit_counter=46 then
+                                if bit_counter=134 then
                                     state <= STOP_BIT_S;
-                                end if;                   
-                    
-                    when CMD_LONG_S =>
-                        bit_counter <= bit_counter + 1;
-                        cmd_reg(cmd_reg'left downto 0) <= cmd_reg(cmd_reg'left-1 downto 0) & sdc_cmd_in;
+                                end if;                                                          
                         
-                        if bit_counter=7 then
-                            state <= DATA_LONG_S;
-                        end if;                        
-                    
-                    when DATA_LONG_S =>
-                        bit_counter <= bit_counter + 1;
-                        cmd_reg(cmd_reg'left downto 0) <= cmd_reg(cmd_reg'left-1 downto 0) & sdc_cmd_in;
-                        
-                        if bit_counter=127 then
-                            state <= CRC_LONG_S;
-                        end if;                        
-                     
-                    when CRC_LONG_S =>
+                        when STOP_BIT_S =>
                             bit_counter <= bit_counter + 1;
                             cmd_reg(cmd_reg'left downto 0) <= cmd_reg(cmd_reg'left-1 downto 0) & sdc_cmd_in;
-    
-                            if bit_counter=134 then
-                                state <= STOP_BIT_S;
-                            end if;                                                          
-                    
-                    when STOP_BIT_S =>
-                        bit_counter <= bit_counter + 1;
-                        cmd_reg(cmd_reg'left downto 0) <= cmd_reg(cmd_reg'left-1 downto 0) & sdc_cmd_in;
-                        state <= CMD_DONE_S;
-                    
-                    when CMD_DONE_S =>
-                        state <= IDLE_S;
-                end case;
-
+                            state <= CMD_DONE_S;
+                        
+                        when CMD_DONE_S =>
+                            state <= IDLE_S;
+                    end case;
+                end if;
             end if;
         end if;
     end process;
