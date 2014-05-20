@@ -1,19 +1,44 @@
-<?xml version="1.0"?>
-<!--Product Version: Vivado v2013.4 (64-bit)-->
-<Project Version="6" Minor="14" Path="/home/kan015/xilinx/axi_sdc/sdc_ip/managed_ip_project/managed_ip_project.xpr">
-	<FileSet Dir="sources_1" File="fileset.xml"/>
-	<FileSet Dir="constrs_1" File="fileset.xml"/>
-	<FileSet Dir="sim_1" File="fileset.xml"/>
-	<DefaultLaunch Dir="$PRUNDIR"/>
-	<Config>
-		<Option Name="Id" Val="6f988520f45f4eeaa3a551bd8a1d7459"/>
-		<Option Name="Part" Val="xc7a100tcsg324-1"/>
-		<Option Name="CompiledLibDir" Val="$PCACHEDIR/compile_simlib"/>
-		<Option Name="TargetLanguage" Val="VHDL"/>
-		<Option Name="Board" Val=""/>
-		<Option Name="SourceMgmtMode" Val="None"/>
-		<Option Name="ActiveSimSet" Val="sim_1"/>
-		<Option Name="ManageIP" Val="TRUE"/>
-	</Config>
-</Project>
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Product Version: Vivado v2014.1 (64-bit)              -->
+<!--                                                         -->
+<!-- Copyright (c) 2001-2013 Xilinx Inc, All rights reserved -->
 
+<Project Version="7" Minor="0" Path="/home/kan015/xilinx/axi_sdc/sdc_ip/managed_ip_project/managed_ip_project.xpr">
+  <DefaultLaunch Dir="$PRUNDIR"/>
+  <Configuration>
+    <Option Name="Id" Val="6f988520f45f4eeaa3a551bd8a1d7459"/>
+    <Option Name="Part" Val="xc7a100tcsg324-1"/>
+    <Option Name="CompiledLibDir" Val="$PCACHEDIR/compile_simlib"/>
+    <Option Name="TargetLanguage" Val="VHDL"/>
+    <Option Name="BoardPart" Val=""/>
+    <Option Name="SourceMgmtMode" Val="None"/>
+    <Option Name="ActiveSimSet" Val="sim_1"/>
+    <Option Name="DefaultLib" Val="xil_defaultlib"/>
+    <Option Name="ManageIP" Val="TRUE"/>
+  </Configuration>
+  <FileSets Version="1" Minor="31">
+    <FileSet Name="sources_1" Type="DesignSrcs" RelSrcDir="$PSRCDIR/sources_1">
+      <Filter Type="Srcs"/>
+      <Config>
+        <Option Name="DesignMode" Val="RTL"/>
+        <Option Name="TopAutoSet" Val="TRUE"/>
+        <Option Name="IPRepoPath" Val="$PPRDIR/axi_sdc_1.0"/>
+      </Config>
+    </FileSet>
+    <FileSet Name="constrs_1" Type="Constrs" RelSrcDir="$PSRCDIR/constrs_1">
+      <Filter Type="Constrs"/>
+      <Config>
+        <Option Name="ConstrsType" Val="XDC"/>
+      </Config>
+    </FileSet>
+    <FileSet Name="sim_1" Type="SimulationSrcs" RelSrcDir="$PSRCDIR/sim_1">
+      <Filter Type="Srcs"/>
+      <Config>
+        <Option Name="DesignMode" Val="RTL"/>
+        <Option Name="TopAutoSet" Val="TRUE"/>
+        <Option Name="SrcSet" Val="sources_1"/>
+      </Config>
+    </FileSet>
+  </FileSets>
+  <Runs Version="1" Minor="9"/>
+</Project>

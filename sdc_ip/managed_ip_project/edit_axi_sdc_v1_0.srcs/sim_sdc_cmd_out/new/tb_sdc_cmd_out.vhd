@@ -40,7 +40,6 @@ architecture tb of tb_sdc_crc7 is
            enable : in STD_LOGIC;
            sdc_cmd_out : out STD_LOGIC;
            cmd_in : in STD_LOGIC_VECTOR (39 downto 0);
-           cmd_load : in STD_LOGIC;
            start : in STD_LOGIC;
            done : out STD_LOGIC
            );
@@ -57,7 +56,6 @@ architecture tb of tb_sdc_crc7 is
     signal start : std_logic := '0';
     signal done : std_logic := '0';    
     signal cmd_in : std_logic_vector (39 downto 0) := x"123456789a";
-    signal cmd_load : std_logic := '0';
     
 
     
@@ -69,7 +67,6 @@ begin
             enable => enable,
             sdc_cmd_out => sdc_cmd_out,
             cmd_in => cmd_in,
-            cmd_load => cmd_load,
             start => start,
             done => done
             );
@@ -88,16 +85,10 @@ begin
         sim_en <= '1';
         Enable <= '0';
         start <= '0';
-        cmd_load <= '0';
         
         wait for 10*PERIOD;
         Enable <= '1';
         wait for 10*PERIOD;
-        
-        wait until rising_edge(Clk);
-        cmd_load <= '1';
-         wait until rising_edge(Clk);
-        cmd_load <= '0';
 
         wait for 3*PERIOD;
         

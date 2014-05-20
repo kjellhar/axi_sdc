@@ -36,7 +36,6 @@ entity cmd_if_out is
            enable : in STD_LOGIC;
            sdc_cmd_out : out STD_LOGIC;
            cmd_in : in STD_LOGIC_VECTOR (39 downto 0);
-           cmd_load : in STD_LOGIC;
            start : in STD_LOGIC;
            done : out STD_LOGIC
            );
@@ -45,71 +44,73 @@ end cmd_if_out;
 architecture rtl of cmd_if_out is
     signal cmd_reg : std_logic_vector (39 downto 0) := (others=>'0');
     signal crc_reg : std_logic_vector (6 downto 0) := (others=>'0');
+
+    signal bit_counter : integer range 0 to 48 := 0;
+ 
     
-    signal shift_data : std_logic := '0';
-    signal shift_crc : std_logic := '0';
-    signal bit_counter : integer range 0 to 63 := 0;
+    type state_t is (
+        IDLE_S,
+        SHIFT_CMD_S,
+        SHIFT_CRC_S,
+        CMD_DONE_S);
+        
+    signal state : state_t := IDLE_S;       
     
-    signal done_i : std_logic := '0';
     
 begin
 
-    sdc_cmd_out <= cmd_reg(39) when shift_data='1' else
-                   crc_reg(6) when shift_crc='1' else
+    sdc_cmd_out <= cmd_reg(39) when state=SHIFT_CMD_S else
+                   crc_reg(6) when state=SHIFT_CRC_S else
                    '0';
 
-    done <= done_i;
+    done <= '1' when state=CMD_DONE_S else '0';
 
     process (clk)
     begin
         if rising_edge(clk) then
             if enable='1' then
-                if cmd_load='1' then
-                    cmd_reg <= cmd_in;
-                    bit_counter <= 0;
-                    crc_reg <= (others => '0');
-                    
-                elsif shift_data='1' then
-                    cmd_reg(cmd_reg'left downto 0) <= cmd_reg(cmd_reg'left-1 downto 0) & '0';
-                    bit_counter <= bit_counter + 1;
- 
-                    crc_reg(0) <= crc_reg(6) xor cmd_reg(39);
-                    crc_reg(1) <= crc_reg(0);
-                    crc_reg(2) <= crc_reg(1);
-                    crc_reg(3) <= crc_reg(2) xor crc_reg(6) xor cmd_reg(39);
-                    crc_reg(4) <= crc_reg(3);
-                    crc_reg(5) <= crc_reg(4);
-                    crc_reg(6) <= crc_reg(5);
-               
-                elsif shift_crc='1' then
-                    crc_reg(crc_reg'left downto 0) <= crc_reg(crc_reg'left-1 downto 0) & '0';
-                    
-                    if bit_counter=47 then
+                case state is
+                    when IDLE_S =>       
                         bit_counter <= 0;
-                    else
+                        crc_reg <= (others => '0');
+                                      
+                        if start='1' then
+                            cmd_reg <= cmd_in;
+                            state <= SHIFT_CMD_S;
+                        end if;
+                       
+                    when SHIFT_CMD_S =>
+                        cmd_reg(cmd_reg'left downto 0) <= cmd_reg(cmd_reg'left-1 downto 0) & '0';
+                                 
+                        crc_reg(0) <= crc_reg(6) xor cmd_reg(39);
+                        crc_reg(1) <= crc_reg(0);
+                        crc_reg(2) <= crc_reg(1);
+                        crc_reg(3) <= crc_reg(2) xor crc_reg(6) xor cmd_reg(39);
+                        crc_reg(4) <= crc_reg(3);
+                        crc_reg(5) <= crc_reg(4);
+                        crc_reg(6) <= crc_reg(5);
+                        
                         bit_counter <= bit_counter + 1;
-                    end if;
-                end if;
+                        
+                        if bit_counter=39 then
+                            state <= SHIFT_CRC_S;
+                        end if;
+                        
+                    when SHIFT_CRC_S =>
+                        crc_reg(crc_reg'left downto 0) <= crc_reg(crc_reg'left-1 downto 0) & '1';
+                        
+                        bit_counter <= bit_counter + 1;
+                        
+                        if bit_counter=47 then
+                            state <= CMD_DONE_S;
+                        end if;
+                        
+                    when CMD_DONE_S =>
+                        bit_counter <= 0;
+                        state <= IDLE_S;
+                        
+                end case;
             end if;
         end if;
-    end process;
-    
-    process (clk)
-    begin
-        if rising_edge(clk) then
-            if enable='1' then
-                if start='1' and bit_counter=0 then
-                    shift_data <= '1';
-                    done_i <= '0';
-                elsif bit_counter=39 then
-                    shift_data <= '0';
-                    shift_crc <= '1';
-                elsif bit_counter=47 then
-                    shift_crc <= '0';
-                    done_i <= '1';
-                end if;
-            end if;
-        end if;
-    end process;
-    
+    end process;   
 end rtl;
