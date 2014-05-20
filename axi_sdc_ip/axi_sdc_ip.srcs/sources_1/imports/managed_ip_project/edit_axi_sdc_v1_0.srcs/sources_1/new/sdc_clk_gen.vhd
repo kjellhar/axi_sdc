@@ -33,7 +33,7 @@ use IEEE.NUMERIC_STD.ALL;
 
 entity sdc_clk_gen is
     Port ( clk : in std_logic;
-           reset : in std_logic;
+           resetn : in std_logic;
            sdc_clk : out std_logic;
            sdc_clockgen_en : in std_logic;
            fdiv : in std_logic_vector (15 downto 0);
@@ -53,7 +53,7 @@ begin
 
     begin
         if rising_edge(clk) then
-            if reset = '1' then
+            if resetn = '0' then
                 sdc_clk_redge <= '0';
                 sdc_clk_fedge <= '0';
                 counter := 0;                

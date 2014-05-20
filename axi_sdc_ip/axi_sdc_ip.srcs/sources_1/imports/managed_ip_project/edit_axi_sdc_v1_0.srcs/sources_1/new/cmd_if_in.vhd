@@ -33,16 +33,17 @@ use IEEE.STD_LOGIC_1164.ALL;
 
 entity cmd_if_in is
     Port ( clk : in STD_LOGIC;
-           reset : in std_logic;
+           resetn : in std_logic;
            enable : in STD_LOGIC;
            sdc_cmd_in : in STD_LOGIC;
            long_resp : in STD_LOGIC;
            start : in STD_LOGIC;
-           done : out STD_LOGIC;
+           busy : out STD_LOGIC;
            resp0_out : out STD_LOGIC_VECTOR (31 downto 0);
            resp1_out : out STD_LOGIC_VECTOR (31 downto 0);
            resp2_out : out STD_LOGIC_VECTOR (31 downto 0);
            resp3_out : out STD_LOGIC_VECTOR (31 downto 0);
+           resp_wr_en : out std_logic;
            crc_error : out STD_LOGIC);
 end cmd_if_in;
 
@@ -70,8 +71,11 @@ architecture rtl of cmd_if_in is
     signal bit_counter : integer range 0 to 136 := 0;
 
 begin
-
-    done <= '1' when state=CMD_DONE_S else '0';
+    with state select
+        busy <= '0' when IDLE_S, 
+                '0' when CMD_DONE_S,
+                '1' when others;
+            
     crc_error <= '1' when state=CMD_DONE_S and crc_reg /= cmd_reg(7 downto 1) else '0';
     
     resp0_out <= cmd_reg(39 downto 8) when long_resp_reg = '0' else
@@ -82,12 +86,13 @@ begin
                  cmd_reg(63 downto 32);                
     resp3_out <= (others => '0') when long_resp_reg = '0' else
                  cmd_reg(31 downto 0);                
-                  
+    
+    resp_wr_en <= '1' when state=CMD_DONE_S else '0';         
 
     process (clk)
     begin
         if rising_edge(clk) then
-            if reset = '1' then
+            if resetn = '0' then
                 state <= IDLE_S;
                 bit_counter <= 0;
                 cmd_reg <= (others => '0');

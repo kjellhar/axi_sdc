@@ -161,7 +161,7 @@ architecture arch_imp of axi_sdc_v1_0 is
 	
     component sdc_clk_gen is
         Port ( clk : in std_logic;
-               reset : in std_logic;
+               resetn : in std_logic;
                sdc_clk : out std_logic;
                sdc_clockgen_en : in std_logic;
                fdiv : in std_logic_vector (15 downto 0);
@@ -171,13 +171,13 @@ architecture arch_imp of axi_sdc_v1_0 is
     
     component sdc_ctrl is
         Port ( clk : in STD_LOGIC;
-               reset : in std_logic;
+               resetn : in std_logic;
                sdc_clk_en : out std_logic;
                cmd_written : in std_logic;
                cmd_busy : in std_logic;
                cmd_start : out std_logic;
+               sdc_dir_out : out std_logic;
                long_resp : out std_logic;
-               cmd_done : in std_logic;
                command : in std_logic_vector (5 downto 0);
                crc_error : in std_logic;
                intr : out std_logic;
@@ -191,7 +191,7 @@ architecture arch_imp of axi_sdc_v1_0 is
     component cmd_if is
         Port ( 
             clk : in STD_LOGIC;
-            reset : in std_logic;
+            resetn : in std_logic;
             cmd_in_en : in std_logic;
             cmd_out_en : in std_logic;
             sdc_cmd : inout STD_LOGIC;
@@ -199,7 +199,7 @@ architecture arch_imp of axi_sdc_v1_0 is
             sdc_dir_out : in std_logic;
             long_resp : in std_logic;
             start : in std_logic;
-            done : out std_logic;
+            busy : out std_logic;
             
             cmd_in : in STD_LOGIC_VECTOR (39 downto 0);
             resp0_out : out STD_LOGIC_VECTOR (31 downto 0);
@@ -231,7 +231,6 @@ architecture arch_imp of axi_sdc_v1_0 is
 	signal sdc_dir_out : std_logic;
 	signal long_resp : std_logic;
 	signal cmd_start : std_logic;
-	signal cmd_done : std_logic;
 	signal cmd_parallell_in : std_logic_vector (39 downto 0);
 	signal response : std_logic_vector (135 downto 0);
 	signal crc_error : std_logic;
@@ -324,7 +323,7 @@ axi_sdc_v1_0_S00_AXIS_DataOut_inst : axi_sdc_v1_0_S00_AXIS_DataOut
     u_clkgen : sdc_clk_gen
     Port map ( 
         clk => s00_axi_ctrl_aclk,
-        reset => s00_axi_ctrl_aresetn,
+        resetn => s00_axi_ctrl_aresetn,
         sdc_clk => sdc_clk,
         sdc_clockgen_en => sdc_clk_en,
         fdiv => ctrl2_r(15 downto 0),
@@ -334,13 +333,13 @@ axi_sdc_v1_0_S00_AXIS_DataOut_inst : axi_sdc_v1_0_S00_AXIS_DataOut
     u_sdc_ctrl : sdc_ctrl
     Port map ( 
         clk => s00_axi_ctrl_aclk,
-        reset => s00_axi_ctrl_aresetn,
+        resetn => s00_axi_ctrl_aresetn,
         sdc_clk_en => sdc_clk_en,
         cmd_written => cmd_received,
         cmd_busy => cmd_busy,
         cmd_start => cmd_start,
+        sdc_dir_out => sdc_dir_out,
         long_resp => long_resp,
-        cmd_done => cmd_done,
         command => cmd_r(5 downto 0),
         crc_error => crc_error,
         intr => intr,
@@ -353,7 +352,7 @@ axi_sdc_v1_0_S00_AXIS_DataOut_inst : axi_sdc_v1_0_S00_AXIS_DataOut
     u_cmd_if : cmd_if 
     Port map ( 
         clk => s00_axi_ctrl_aclk,
-        reset => s00_axi_ctrl_aresetn,
+        resetn => s00_axi_ctrl_aresetn,
         cmd_in_en => sdc_clk_redge,
         cmd_out_en => sdc_clk_fedge,
         sdc_cmd => sdc_cmd,
@@ -361,7 +360,7 @@ axi_sdc_v1_0_S00_AXIS_DataOut_inst : axi_sdc_v1_0_S00_AXIS_DataOut
         sdc_dir_out => sdc_dir_out,
         long_resp => long_resp,
         start => cmd_start,
-        done => cmd_done,
+        busy => cmd_busy,
         
         cmd_in => cmd_parallell_in,
         resp0_out => resp0_r,

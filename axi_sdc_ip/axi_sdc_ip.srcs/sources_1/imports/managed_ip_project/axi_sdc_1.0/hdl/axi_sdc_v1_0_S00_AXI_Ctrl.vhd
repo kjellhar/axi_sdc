@@ -458,6 +458,13 @@ begin
 	   end if;
 	end process;
 	
+	-- Connect outputs from registers
+	ctrl1_r <= ctrl1_reg;
+	ctrl2_r <= ctrl2_reg;
+	carg_r <= carg_reg;
+	cmd_r <= cmd_reg;
+	evmask_r <= evmask_reg;
+	
 	-- Response registers
 	process (S_AXI_ACLK)
     begin

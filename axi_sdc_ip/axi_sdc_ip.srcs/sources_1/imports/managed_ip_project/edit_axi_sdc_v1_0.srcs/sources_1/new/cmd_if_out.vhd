@@ -33,12 +33,12 @@ use IEEE.NUMERIC_STD.ALL;
 
 entity cmd_if_out is
     Port ( clk : in STD_LOGIC;
-           reset : in std_logic;
+           resetn : in std_logic;
            enable : in STD_LOGIC;
            sdc_cmd_out : out STD_LOGIC;
            cmd_in : in STD_LOGIC_VECTOR (39 downto 0);
            start : in STD_LOGIC;
-           done : out STD_LOGIC
+           busy : out STD_LOGIC
            );
 end cmd_if_out;
 
@@ -64,12 +64,15 @@ begin
                    crc_reg(6) when state=SHIFT_CRC_S else
                    '0';
 
-    done <= '1' when state=CMD_DONE_S else '0';
+    with state select
+        busy <= '0' when IDLE_S,
+                '0' when CMD_DONE_S,
+                '1' when others;
 
     process (clk)
     begin
         if rising_edge(clk) then
-            if reset = '1' then
+            if resetn = '0' then
                 state <= IDLE_S;
                 bit_counter <= 0;
                 crc_reg <= (others => '0');

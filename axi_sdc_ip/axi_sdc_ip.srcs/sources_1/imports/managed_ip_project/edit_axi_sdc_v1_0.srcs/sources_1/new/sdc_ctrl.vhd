@@ -34,13 +34,13 @@ use work.sdc_defines_pkg.all;
 
 entity sdc_ctrl is
     Port ( clk : in STD_LOGIC;
-           reset : in std_logic;
+           resetn : in std_logic;
            sdc_clk_en : out std_logic;
            cmd_written : in std_logic;
            cmd_busy : in std_logic;
            cmd_start : out std_logic;
+           sdc_dir_out : out std_logic;
            long_resp : out std_logic;
-           cmd_done : in std_logic;
            command : in std_logic_vector (5 downto 0);
            crc_error : in std_logic;
            intr : out std_logic;
@@ -74,7 +74,7 @@ begin
     process (clk)
     begin
         if rising_edge(clk) then
-            if reset = '1' then
+            if resetn = '0' then
                 state <= IDLE_S;
                 command_reg <= (others => '0');
             else
@@ -121,16 +121,22 @@ begin
                         end if;
                         
                     when RESP1_S => 
-                        state <= WAIT_RESP_S;
+                        if cmd_busy='1' then
+                            state <= WAIT_RESP_S;
+                        end if;
                         
                     when RESP2_S => 
-                        state <= WAIT_RESP_S;
+                        if cmd_busy='1' then
+                            state <= WAIT_RESP_S;
+                        end if;
                         
                     when RESP3_S =>
-                        state <= WAIT_RESP_NOCRC_S;
+                        if cmd_busy='1' then
+                            state <= WAIT_RESP_NOCRC_S;
+                        end if;                    
                         
                     when WAIT_RESP_S =>
-                        if cmd_done='1' then
+                        if cmd_busy='0' then
                             if crc_error='0' then
                                 state <= CMD_DONE_S;
                             else
@@ -139,7 +145,7 @@ begin
                         end if;                        
                                             
                     when WAIT_RESP_NOCRC_S =>
-                        if cmd_done='1' then
+                        if cmd_busy='0' then
                             state <= CMD_DONE_S;
                         end if;
                     
@@ -168,8 +174,15 @@ begin
         long_resp <= '1' when RESP2_S,
                      '0' when others;
                      
+    with state select
+        sdc_dir_out <= '1' when START_CMD_S,
+                       '1' when WAIT_CMD_S,
+                       '0' when others; 
+                     
     intr <= '0';
     event_wr_en <= '0';
-    event_reg <= (others => '0');                 
+    event_reg <= (others => '0');
+    
+    sdc_clk_en <= '1';             
 
 end rtl;
