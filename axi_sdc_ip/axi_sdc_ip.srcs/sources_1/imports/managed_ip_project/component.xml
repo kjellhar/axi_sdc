@@ -456,7 +456,7 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>viewChecksum</spirit:name>
-            <spirit:value>633565e6</spirit:value>
+            <spirit:value>9510eea0</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -472,7 +472,7 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>viewChecksum</spirit:name>
-            <spirit:value>633565e6</spirit:value>
+            <spirit:value>9510eea0</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -506,9 +506,9 @@
         </spirit:wire>
       </spirit:port>
       <spirit:port>
-        <spirit:name>sdc_cmd</spirit:name>
+        <spirit:name>sdc_cmd_in</spirit:name>
         <spirit:wire>
-          <spirit:direction>inout</spirit:direction>
+          <spirit:direction>in</spirit:direction>
           <spirit:wireTypeDefs>
             <spirit:wireTypeDef>
               <spirit:typeName>std_logic</spirit:typeName>
@@ -519,9 +519,35 @@
         </spirit:wire>
       </spirit:port>
       <spirit:port>
-        <spirit:name>sdc_dat</spirit:name>
+        <spirit:name>sdc_cmd_out</spirit:name>
         <spirit:wire>
-          <spirit:direction>inout</spirit:direction>
+          <spirit:direction>out</spirit:direction>
+          <spirit:wireTypeDefs>
+            <spirit:wireTypeDef>
+              <spirit:typeName>std_logic</spirit:typeName>
+              <spirit:viewNameRef>xilinx_vhdlsynthesis</spirit:viewNameRef>
+              <spirit:viewNameRef>xilinx_vhdlbehavioralsimulation</spirit:viewNameRef>
+            </spirit:wireTypeDef>
+          </spirit:wireTypeDefs>
+        </spirit:wire>
+      </spirit:port>
+      <spirit:port>
+        <spirit:name>sdc_cmd_dir</spirit:name>
+        <spirit:wire>
+          <spirit:direction>out</spirit:direction>
+          <spirit:wireTypeDefs>
+            <spirit:wireTypeDef>
+              <spirit:typeName>std_logic</spirit:typeName>
+              <spirit:viewNameRef>xilinx_vhdlsynthesis</spirit:viewNameRef>
+              <spirit:viewNameRef>xilinx_vhdlbehavioralsimulation</spirit:viewNameRef>
+            </spirit:wireTypeDef>
+          </spirit:wireTypeDefs>
+        </spirit:wire>
+      </spirit:port>
+      <spirit:port>
+        <spirit:name>sdc_dat_in</spirit:name>
+        <spirit:wire>
+          <spirit:direction>in</spirit:direction>
           <spirit:vector>
             <spirit:left spirit:format="long" spirit:resolve="immediate">3</spirit:left>
             <spirit:right spirit:format="long" spirit:resolve="immediate">0</spirit:right>
@@ -529,6 +555,36 @@
           <spirit:wireTypeDefs>
             <spirit:wireTypeDef>
               <spirit:typeName>std_logic_vector</spirit:typeName>
+              <spirit:viewNameRef>xilinx_vhdlsynthesis</spirit:viewNameRef>
+              <spirit:viewNameRef>xilinx_vhdlbehavioralsimulation</spirit:viewNameRef>
+            </spirit:wireTypeDef>
+          </spirit:wireTypeDefs>
+        </spirit:wire>
+      </spirit:port>
+      <spirit:port>
+        <spirit:name>sdc_dat_out</spirit:name>
+        <spirit:wire>
+          <spirit:direction>out</spirit:direction>
+          <spirit:vector>
+            <spirit:left spirit:format="long" spirit:resolve="immediate">3</spirit:left>
+            <spirit:right spirit:format="long" spirit:resolve="immediate">0</spirit:right>
+          </spirit:vector>
+          <spirit:wireTypeDefs>
+            <spirit:wireTypeDef>
+              <spirit:typeName>std_logic_vector</spirit:typeName>
+              <spirit:viewNameRef>xilinx_vhdlsynthesis</spirit:viewNameRef>
+              <spirit:viewNameRef>xilinx_vhdlbehavioralsimulation</spirit:viewNameRef>
+            </spirit:wireTypeDef>
+          </spirit:wireTypeDefs>
+        </spirit:wire>
+      </spirit:port>
+      <spirit:port>
+        <spirit:name>sdc_dat_dir</spirit:name>
+        <spirit:wire>
+          <spirit:direction>out</spirit:direction>
+          <spirit:wireTypeDefs>
+            <spirit:wireTypeDef>
+              <spirit:typeName>std_logic</spirit:typeName>
               <spirit:viewNameRef>xilinx_vhdlsynthesis</spirit:viewNameRef>
               <spirit:viewNameRef>xilinx_vhdlbehavioralsimulation</spirit:viewNameRef>
             </spirit:wireTypeDef>
@@ -1168,106 +1224,115 @@
     <spirit:fileSet>
       <spirit:name>xilinx_vhdlsynthesis_view_fileset</spirit:name>
       <spirit:file>
-        <spirit:name>edit_axi_sdc_v1_0.srcs/sources_1/new/sdc_defines_pkg.vhd</spirit:name>
+        <spirit:name>/home/kan015/xilinx/axi_sdc/axi_sdc_ip/axi_sdc_ip.srcs/sources_1/imports/src/sdc_defines_pkg.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
         <spirit:logicalName>xil_defaultlib</spirit:logicalName>
       </spirit:file>
       <spirit:file>
-        <spirit:name>edit_axi_sdc_v1_0.srcs/sources_1/new/cmd_if_out.vhd</spirit:name>
+        <spirit:name>/home/kan015/xilinx/axi_sdc/axi_sdc_ip/axi_sdc_ip.srcs/sources_1/imports/src/cmd_if_out.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
         <spirit:logicalName>xil_defaultlib</spirit:logicalName>
       </spirit:file>
       <spirit:file>
-        <spirit:name>edit_axi_sdc_v1_0.srcs/sources_1/new/cmd_if_in.vhd</spirit:name>
+        <spirit:name>/home/kan015/xilinx/axi_sdc/axi_sdc_ip/axi_sdc_ip.srcs/sources_1/imports/src/cmd_if_in.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
         <spirit:logicalName>xil_defaultlib</spirit:logicalName>
       </spirit:file>
       <spirit:file>
-        <spirit:name>edit_axi_sdc_v1_0.srcs/sources_1/new/sdc_ctrl.vhd</spirit:name>
+        <spirit:name>/home/kan015/xilinx/axi_sdc/axi_sdc_ip/axi_sdc_ip.srcs/sources_1/imports/src/sdc_ctrl.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
         <spirit:logicalName>xil_defaultlib</spirit:logicalName>
       </spirit:file>
       <spirit:file>
-        <spirit:name>edit_axi_sdc_v1_0.srcs/sources_1/new/sdc_clk_gen.vhd</spirit:name>
+        <spirit:name>/home/kan015/xilinx/axi_sdc/axi_sdc_ip/axi_sdc_ip.srcs/sources_1/imports/src/sdc_clk_gen.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
         <spirit:logicalName>xil_defaultlib</spirit:logicalName>
       </spirit:file>
       <spirit:file>
-        <spirit:name>edit_axi_sdc_v1_0.srcs/sources_1/new/cmd_if.vhd</spirit:name>
+        <spirit:name>/home/kan015/xilinx/axi_sdc/axi_sdc_ip/axi_sdc_ip.srcs/sources_1/imports/src/cmd_if.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
         <spirit:logicalName>xil_defaultlib</spirit:logicalName>
       </spirit:file>
       <spirit:file>
-        <spirit:name>axi_sdc_1.0/hdl/axi_sdc_v1_0_S00_AXI_Ctrl.vhd</spirit:name>
+        <spirit:name>/home/kan015/xilinx/axi_sdc/axi_sdc_ip/axi_sdc_ip.srcs/sources_1/imports/src/sdc_core.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
         <spirit:logicalName>xil_defaultlib</spirit:logicalName>
       </spirit:file>
       <spirit:file>
-        <spirit:name>axi_sdc_1.0/hdl/axi_sdc_v1_0_S00_AXIS_DataOut.vhd</spirit:name>
+        <spirit:name>/home/kan015/xilinx/axi_sdc/axi_sdc_ip/axi_sdc_ip.srcs/sources_1/imports/src/axi_sdc_v1_0_S00_AXI_Ctrl.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
         <spirit:logicalName>xil_defaultlib</spirit:logicalName>
       </spirit:file>
       <spirit:file>
-        <spirit:name>axi_sdc_1.0/hdl/axi_sdc_v1_0_M00_AXIS_DataIn.vhd</spirit:name>
+        <spirit:name>/home/kan015/xilinx/axi_sdc/axi_sdc_ip/axi_sdc_ip.srcs/sources_1/imports/src/axi_sdc_v1_0_S00_AXIS_DataOut.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
         <spirit:logicalName>xil_defaultlib</spirit:logicalName>
       </spirit:file>
       <spirit:file>
-        <spirit:name>axi_sdc_1.0/hdl/axi_sdc_v1_0.vhd</spirit:name>
+        <spirit:name>/home/kan015/xilinx/axi_sdc/axi_sdc_ip/axi_sdc_ip.srcs/sources_1/imports/src/axi_sdc_v1_0_M00_AXIS_DataIn.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
-        <spirit:userFileType>CHECKSUM_3cc9698e</spirit:userFileType>
+        <spirit:logicalName>xil_defaultlib</spirit:logicalName>
+      </spirit:file>
+      <spirit:file>
+        <spirit:name>/home/kan015/xilinx/axi_sdc/axi_sdc_ip/axi_sdc_ip.srcs/sources_1/imports/src/axi_sdc_v1_0.vhd</spirit:name>
+        <spirit:fileType>vhdlSource</spirit:fileType>
         <spirit:logicalName>xil_defaultlib</spirit:logicalName>
       </spirit:file>
     </spirit:fileSet>
     <spirit:fileSet>
       <spirit:name>xilinx_vhdlbehavioralsimulation_view_fileset</spirit:name>
       <spirit:file>
-        <spirit:name>edit_axi_sdc_v1_0.srcs/sources_1/new/sdc_defines_pkg.vhd</spirit:name>
+        <spirit:name>/home/kan015/xilinx/axi_sdc/axi_sdc_ip/axi_sdc_ip.srcs/sources_1/imports/src/sdc_defines_pkg.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
         <spirit:logicalName>xil_defaultlib</spirit:logicalName>
       </spirit:file>
       <spirit:file>
-        <spirit:name>edit_axi_sdc_v1_0.srcs/sources_1/new/cmd_if_out.vhd</spirit:name>
+        <spirit:name>/home/kan015/xilinx/axi_sdc/axi_sdc_ip/axi_sdc_ip.srcs/sources_1/imports/src/cmd_if_out.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
         <spirit:logicalName>xil_defaultlib</spirit:logicalName>
       </spirit:file>
       <spirit:file>
-        <spirit:name>edit_axi_sdc_v1_0.srcs/sources_1/new/cmd_if_in.vhd</spirit:name>
+        <spirit:name>/home/kan015/xilinx/axi_sdc/axi_sdc_ip/axi_sdc_ip.srcs/sources_1/imports/src/cmd_if_in.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
         <spirit:logicalName>xil_defaultlib</spirit:logicalName>
       </spirit:file>
       <spirit:file>
-        <spirit:name>edit_axi_sdc_v1_0.srcs/sources_1/new/sdc_ctrl.vhd</spirit:name>
+        <spirit:name>/home/kan015/xilinx/axi_sdc/axi_sdc_ip/axi_sdc_ip.srcs/sources_1/imports/src/sdc_ctrl.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
         <spirit:logicalName>xil_defaultlib</spirit:logicalName>
       </spirit:file>
       <spirit:file>
-        <spirit:name>edit_axi_sdc_v1_0.srcs/sources_1/new/sdc_clk_gen.vhd</spirit:name>
+        <spirit:name>/home/kan015/xilinx/axi_sdc/axi_sdc_ip/axi_sdc_ip.srcs/sources_1/imports/src/sdc_clk_gen.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
         <spirit:logicalName>xil_defaultlib</spirit:logicalName>
       </spirit:file>
       <spirit:file>
-        <spirit:name>edit_axi_sdc_v1_0.srcs/sources_1/new/cmd_if.vhd</spirit:name>
+        <spirit:name>/home/kan015/xilinx/axi_sdc/axi_sdc_ip/axi_sdc_ip.srcs/sources_1/imports/src/cmd_if.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
         <spirit:logicalName>xil_defaultlib</spirit:logicalName>
       </spirit:file>
       <spirit:file>
-        <spirit:name>axi_sdc_1.0/hdl/axi_sdc_v1_0_S00_AXI_Ctrl.vhd</spirit:name>
+        <spirit:name>/home/kan015/xilinx/axi_sdc/axi_sdc_ip/axi_sdc_ip.srcs/sources_1/imports/src/sdc_core.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
         <spirit:logicalName>xil_defaultlib</spirit:logicalName>
       </spirit:file>
       <spirit:file>
-        <spirit:name>axi_sdc_1.0/hdl/axi_sdc_v1_0_S00_AXIS_DataOut.vhd</spirit:name>
+        <spirit:name>/home/kan015/xilinx/axi_sdc/axi_sdc_ip/axi_sdc_ip.srcs/sources_1/imports/src/axi_sdc_v1_0_S00_AXI_Ctrl.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
         <spirit:logicalName>xil_defaultlib</spirit:logicalName>
       </spirit:file>
       <spirit:file>
-        <spirit:name>axi_sdc_1.0/hdl/axi_sdc_v1_0_M00_AXIS_DataIn.vhd</spirit:name>
+        <spirit:name>/home/kan015/xilinx/axi_sdc/axi_sdc_ip/axi_sdc_ip.srcs/sources_1/imports/src/axi_sdc_v1_0_S00_AXIS_DataOut.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
         <spirit:logicalName>xil_defaultlib</spirit:logicalName>
       </spirit:file>
       <spirit:file>
-        <spirit:name>axi_sdc_1.0/hdl/axi_sdc_v1_0.vhd</spirit:name>
+        <spirit:name>/home/kan015/xilinx/axi_sdc/axi_sdc_ip/axi_sdc_ip.srcs/sources_1/imports/src/axi_sdc_v1_0_M00_AXIS_DataIn.vhd</spirit:name>
+        <spirit:fileType>vhdlSource</spirit:fileType>
+        <spirit:logicalName>xil_defaultlib</spirit:logicalName>
+      </spirit:file>
+      <spirit:file>
+        <spirit:name>/home/kan015/xilinx/axi_sdc/axi_sdc_ip/axi_sdc_ip.srcs/sources_1/imports/src/axi_sdc_v1_0.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
         <spirit:logicalName>xil_defaultlib</spirit:logicalName>
       </spirit:file>
@@ -1279,6 +1344,7 @@
         <spirit:userFileType>XGUI_VERSION_2</spirit:userFileType>
         <spirit:fileType>tclSource</spirit:fileType>
         <spirit:userFileType>CHECKSUM_f6c3cbb5</spirit:userFileType>
+        <spirit:isIncludeFile>true</spirit:isIncludeFile>
       </spirit:file>
     </spirit:fileSet>
   </spirit:fileSets>
@@ -1324,14 +1390,14 @@
       </xilinx:taxonomies>
       <xilinx:displayName>AXI SD Card controller</xilinx:displayName>
       <xilinx:coreRevision>1</xilinx:coreRevision>
-      <xilinx:coreCreationDateTime>2014-05-20T20:27:52Z</xilinx:coreCreationDateTime>
+      <xilinx:coreCreationDateTime>2014-05-22T21:22:41Z</xilinx:coreCreationDateTime>
     </xilinx:coreExtensions>
     <xilinx:packagingInfo>
       <xilinx:xilinxVersion>2014.1</xilinx:xilinxVersion>
       <xilinx:checksum xilinx:scope="busInterfaces" xilinx:value="24396879"/>
       <xilinx:checksum xilinx:scope="memoryMaps" xilinx:value="f1892e35"/>
-      <xilinx:checksum xilinx:scope="fileGroups" xilinx:value="aa287bde"/>
-      <xilinx:checksum xilinx:scope="ports" xilinx:value="3a44c27f"/>
+      <xilinx:checksum xilinx:scope="fileGroups" xilinx:value="8edae9b1"/>
+      <xilinx:checksum xilinx:scope="ports" xilinx:value="2510e014"/>
       <xilinx:checksum xilinx:scope="hdlParameters" xilinx:value="c3abdb9c"/>
       <xilinx:checksum xilinx:scope="parameters" xilinx:value="30e79cd6"/>
     </xilinx:packagingInfo>
